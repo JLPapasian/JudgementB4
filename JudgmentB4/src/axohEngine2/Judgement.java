@@ -111,6 +111,7 @@ public class Judgement extends Game {
 	private int titleX2 = 340, titleY2 = 310;
 	private int titleLocation;
 	private String currentFile;
+	private int wait;
 	private boolean waitOn = false;
 	
 	private int escapeDown = 0;
