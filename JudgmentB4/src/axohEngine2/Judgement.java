@@ -48,8 +48,8 @@ public class Judgement extends Game {
 	//SCREENWIDTH - Game window width
 	//SCREENHEIGHT - Game window height
 	//CENTERX/CENTERY - Center of the game window's x/y
-	static int SCREENWIDTH = 960;
-	static int SCREENHEIGHT = 720;
+	static int SCREENWIDTH = 1600;
+	static int SCREENHEIGHT = 900;
 	static int CENTERX = SCREENWIDTH / 2;
 	static int CENTERY = SCREENHEIGHT / 2;
 	
