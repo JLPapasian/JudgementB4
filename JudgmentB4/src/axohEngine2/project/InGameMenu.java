@@ -218,29 +218,23 @@ public class InGameMenu {
 	public void render(JFrame frame, Graphics2D g2d, int inX, int inY) {
 		g2d.drawImage(_background.getImage(), 0, 0, SCREENWIDTH, SCREENHEIGHT, frame);
 		g2d.setColor(Color.BLACK);
-		g2d.drawString("Items", 120, 170);
-		g2d.drawString("Equipment", 120, 275);
-		g2d.drawString("Magic", 120, 385);
-		g2d.drawString("Status", 120, 490);
-		g2d.drawString("Save Game", 120, 600);
+		g2d.drawString("Stats", 120, 170);
+		g2d.drawString("Option", 120, 275);
+		g2d.drawString("Exit Menu", 120, 385);
+		g2d.drawString("Quit To Title", 120, 490);
+		//g2d.drawString("Exit Menu", 120, 600);
 		g2d.setColor(Color.YELLOW);
 		g2d.drawRect(inX, inY, 435, 104);
 		
-		if(_option == OPTION.ITEMS){
-			g2d.setColor(Color.BLACK);
-			g2d.drawString("Items", 920, 200);
-			renderItems(frame, g2d, shownItems, items);
-		}
 		
 		if(_option == OPTION.EQUIPMENT){
 			g2d.setColor(Color.BLACK);
-			g2d.drawString("Equipment", 900, 200);
-			renderItems(frame, g2d, shownEquipment, equipment);
+			g2d.drawString("Stats", 900, 200);
 		}
 		
 		if(_option == OPTION.MAGIC){
 			g2d.setColor(Color.BLACK);
-			g2d.drawString("Magic", 880, 200);
+			g2d.drawString("Options", 880, 200);
 		}
 		
 		if(_option == OPTION.STATUS){

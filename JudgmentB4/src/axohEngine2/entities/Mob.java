@@ -14,7 +14,6 @@
 package axohEngine2.entities;
 
 //Imports
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.Random;
@@ -50,8 +49,7 @@ public class Mob extends AnimatedSprite{
 	private boolean attacking;
 	private boolean takenOut = false;
 	private Attack currentAttack;
-	//private Graphics2D drawerRect; //modification
-	
+
 	//Four variable booleans depicting the last direction the mob was moving(This could be phased out of the system)
 	private boolean wasRight = false;
 	private boolean wasLeft = false;
@@ -146,9 +144,6 @@ public class Mob extends AnimatedSprite{
 		if(ai == TYPE.CHASE) {
 			chase();
 		}
-		if(ai == TYPE.BULLET) { //MODIFICATION START
-			
-		}//MODIFICATION END
 		if(hostile && health < 0) {
 			setAlive(false);
 		}
@@ -213,6 +208,9 @@ public class Mob extends AnimatedSprite{
 	 * AI logic used for the chase something ai type
 	 ****************************************************************/
 	private void chase() {
+		if(getXLoc()>0){
+		
+		}
 	}
 	
 	/***************************************************************
@@ -480,9 +478,20 @@ public class Mob extends AnimatedSprite{
 		entity.setY(y + yy);
 	}
 	
-	public void renderBullet(int x, int y) { //Modifications
-		g2d.drawImage(getImage(), x, y, getSpriteSize(), getSpriteSize(), frame);
-		entity.setX(x);
-		entity.setY(y);
+	//Used for damaging characters
+	public void damageMob(int damage)
+	{
+		this.health=this.health-damage;
 	}
+	
+	//Used for healing mobs
+	public void healMob(int healthUp)
+	{
+		this.health=this.health+healthUp;
+	}
+	
+	public int getHealth(){
+		return health;
+	}
+	
 }
