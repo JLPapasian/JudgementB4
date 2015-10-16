@@ -98,7 +98,6 @@ public class MapDatabase {
 		hf = new Tile(frame, g2d, "floor", misc, 8);
 		c = new Tile(frame, g2d, "chest", extras2, 0, true);
 		
-		
 		//Set the tile blueprints in an array for the Map
 		Tile[] cityTiles = {b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b,
 						    b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b,
@@ -182,10 +181,6 @@ public class MapDatabase {
 							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
 							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e};
 
-		
-
-
-
 		Tile[] houseTiles = {hf, hf, hf, hf, hf, hf,
 							 hf, hf, hf, hf, hf, hf,
 							 hf, hf, hf, hf, hf, hf,
@@ -212,45 +207,45 @@ public class MapDatabase {
 		maps[3] = housesO;
 		
 		//Put together all items (Dont forget to add these to the count and setup methods in inGameMenu.java)
-	//	potion = new Item(frame, g2d, extras2, 2, "Potion", false);
-	//	potion.setHealItem(25, false, "");
-	//	mpotion = new Item(frame, g2d, extras2, 2, "Mega Potion", false);
-	//	potion.setHealItem(50, false, "");
+		potion = new Item(frame, g2d, extras2, 2, "Potion", false);
+		potion.setHealItem(25, false, "");
+		mpotion = new Item(frame, g2d, extras2, 2, "Mega Potion", false);
+		potion.setHealItem(50, false, "");
 		
 		//Put together all events
 		//Warping events
-	//	warp1 = new Event("fromHouse", TYPE.WARP);
-	//	warp1.setWarp("city", "cityO", 200, -50);
-	//	warp2 = new Event("toHouse", TYPE.WARP);
-	//	warp2.setWarp("houses", "housesO", 620, 250);
+		warp1 = new Event("fromHouse", TYPE.WARP);
+		warp1.setWarp("city", "cityO", 200, -50);
+		warp2 = new Event("toHouse", TYPE.WARP);
+		warp2.setWarp("houses", "housesO", 620, 250);
 		
 		//Item events
-	//	getPotion = new Event("getPotion", TYPE.ITEM);
-	//	getPotion.setItem(potion);
-	//	getMpotion = new Event("getMpotion", TYPE.ITEM);
-	//	getMpotion.setItem(mpotion);
+		getPotion = new Event("getPotion", TYPE.ITEM);
+		getPotion.setItem(potion);
+		getMpotion = new Event("getMpotion", TYPE.ITEM);
+		getMpotion.setItem(mpotion);
 		
 		//Add the events to their specific tiles and maps
 		houses.accessTile(5).addEvent(warp1);
-		//cityO.accessTile(92).addEvent(getPotion);
-		//cityO.accessTile(242).addEvent(getPotion);
-		//cityO.accessTile(328).addEvent(getPotion);
-		//cityO.accessTile(327).addEvent(getMpotion);
-		//cityO.accessTile(326).addEvent(getMpotion);
-	    //cityO.accessTile(325).addEvent(getMpotion);
-		//cityO.accessTile(93).addEvent(getMpotion);
-		//cityO.accessTile(94).addEvent(getMpotion);
-		//cityO.accessTile(95).addEvent(getMpotion);
+		cityO.accessTile(92).addEvent(getPotion);
+		cityO.accessTile(242).addEvent(getPotion);
+		cityO.accessTile(328).addEvent(getPotion);
+		cityO.accessTile(327).addEvent(getMpotion);
+		cityO.accessTile(326).addEvent(getMpotion);
+		cityO.accessTile(325).addEvent(getMpotion);
+		cityO.accessTile(93).addEvent(getMpotion);
+		cityO.accessTile(94).addEvent(getMpotion);
+		cityO.accessTile(95).addEvent(getMpotion);
 		cityO.accessTile(96).addEvent(getMpotion);
 		
 		//Set up Monsters and NPCs
-	//	npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.RANDOMPATH, "npc", false);
-	//	npc.setMultBounds(6, 50, 92, 37, 88, 62, 92, 62, 96);
-	//	npc.setMoveAnim(32, 48, 40, 56, 3, 8);
-	//	npc.setHealth(60);
+		npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.RANDOMPATH, "npc", false);
+		npc.setMultBounds(6, 50, 92, 37, 88, 62, 92, 62, 96);
+		npc.setMoveAnim(32, 48, 40, 56, 3, 8);
+		npc.setHealth(60);
 		
 		//Add the mobs to their tile home
-	//	cityO.accessTile(98).addMob(npc);
+		cityO.accessTile(98).addMob(npc);
 	}
 	
 	/************************************************************
