@@ -23,8 +23,8 @@ public class Data implements Serializable {
 	//Variables to be updated and saved or accessed at some point
 	private String _currentMapName;
 	private String _currentOverlayName;
-	private int _playerX;
-	private int _playerY;
+	private int _playerX; //Modification (if the static is gone, then the modification was undone)
+	private int _playerY; //Modification
 	
 	//Method used to update the private variables
 	public void update(String currentMapName, String currentOverlayName, int playerX, int playerY){
@@ -51,14 +51,14 @@ public class Data implements Serializable {
 	/***************************************************
 	 * @return Int - Get _playerX variable
 	 ***************************************************/
-	public int getPlayerX() {
+	public int getPlayerX() { //Modification
 		return _playerX;
 	}
 	
 	/***************************************************
 	 * @return Int - Get _playerY variable
 	 ***************************************************/
-	public int getPlayerY() {
+	public int getPlayerY() { //Modification
 		return _playerY;
 	}
 }

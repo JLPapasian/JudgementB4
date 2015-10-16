@@ -98,11 +98,11 @@ public class TitleMenu {
 		g2d.drawImage(_mainImage.getImage(), 0, 0, SCREENWIDTH, SCREENHEIGHT, frame);
 		g2d.setColor(Color.BLACK);
 		g2d.setFont(_bold);
-		//g2d.drawString("New Game", 660, 700);
-		//g2d.drawString("Exit Game", 560, 800);
-		g2d.setColor(Color.RED);
+		g2d.drawString("New Game", 660, 700);
+		g2d.drawString("Load Game", 560, 800);
+		g2d.setColor(Color.YELLOW);
 		g2d.setFont(_bigBold);
-	//	drawString(g2d, "      The\nJudgement", SCREENWIDTH/2-200, 100);
+		drawString(g2d, "The\n   Judgement", 500, 100);
 		g2d.drawImage(_titleArrow.getImage(), titleX, titleY, _titleArrow.getSpriteSize(), _titleArrow.getSpriteSize(), frame);
 		
 		if(_option == OPTION.NEWGAME || _option == OPTION.LOADGAME){
