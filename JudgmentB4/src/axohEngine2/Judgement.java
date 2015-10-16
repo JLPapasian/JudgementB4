@@ -14,7 +14,7 @@
  ****************************************************************************************************/
 //Package name
 package axohEngine2;
-//Test JLP
+
 //Imports
 import java.awt.Color;
 import java.awt.Font;
@@ -36,6 +36,7 @@ import axohEngine2.project.OPTION;
 import axohEngine2.project.STATE;
 import axohEngine2.project.TYPE;
 import axohEngine2.project.TitleMenu;
+import java.awt.Rectangle;//temporary modification?
 
 //Start class by also extending the 'Game.java' engine interface
 public class Judgement extends Game {
@@ -52,15 +53,14 @@ public class Judgement extends Game {
 	static int CENTERX = SCREENWIDTH / 2;
 	static int CENTERY = SCREENHEIGHT / 2;
 	
-	//--------- Miscelaneous ---------
+	//--------- Miscellaneous ---------
 	//booleans - A way of detecting a pushed key in game
 	//random - Use this to generate a random number
 	//state - Game states used to show specific info ie. pause/running
 	//option - In game common choices at given times
-	//Fonts - Variouse font sizes in the Arial style for different in game text
-	boolean keyLeft, keyRight, keyUp, keyDown, keyInventoryOpen, keyInventoryClose, keyAction, keyBack, keyEnter, keySpace = false;
-	boolean keyInventoryDown=false;
-	
+	//Fonts - Various font sizes in the Arial style for different in game text
+	boolean keyLeft, keyRight, keyUp, keyDown, keyInventory, keyAction, keyBack, keyEnter, keySpace;
+	boolean arrow, readyLaunch; //MODIFICATION
 	Random random = new Random();
 	STATE state; 
 	OPTION option;
@@ -83,7 +83,6 @@ public class Judgement extends Game {
 	private int startPosY;
 	private int playerSpeed;
 	
-	
 	//----------- Map and input --------
 	//currentMap - The currently displayed map the player can explore
 	//currentOverlay - The current overlay which usually contains houses, trees, pots, etc.
@@ -94,6 +93,7 @@ public class Judgement extends Game {
 	private Map currentOverlay;
 	private MapDatabase mapBase;
 	private int inputWait = 5;
+	private int attackWait = 0; //Modification
 	private boolean confirmUse = false;
 	
 	//----------- Menus ----------------
@@ -111,16 +111,15 @@ public class Judgement extends Game {
 	private int titleX2 = 340, titleY2 = 310;
 	private int titleLocation;
 	private String currentFile;
+	private boolean wasSaving = false;
 	private int wait;
 	private boolean waitOn = false;
-	
-	private int escapeDown = 0;
-	
 	
 	//----------- Game  -----------------
 	//SpriteSheets (To be split in to multiple smaller sprites)
 	SpriteSheet extras1;
 	SpriteSheet mainCharacter;
+	SpriteSheet bullets; //Modification
 	
 	//ImageEntitys (Basic pictures)
 	ImageEntity inGameMenu;
@@ -137,6 +136,7 @@ public class Judgement extends Game {
 	//Player and NPCs
 	Mob playerMob;
 	Mob randomNPC;
+	Mob bullet; //Modification
 	
 	/*********************************************************************** 
 	 * Constructor
@@ -175,7 +175,8 @@ public class Judgement extends Game {
 		//****Initialize spriteSheets*********************************************************************
 		extras1 = new SpriteSheet("/textures/extras/extras1.png", 8, 8, 32, scale);
 		mainCharacter = new SpriteSheet("/textures/characters/mainCharacter.png", 8, 8, 32, scale);
-
+		bullets = new SpriteSheet("/textures/weaponsArmors/Bullets.png", 16, 16, 16, 1); //MODIFICATION
+		
 		//****Initialize and setup AnimatedSprites*********************************************************
 		titleArrow = new AnimatedSprite(this, graphics(), extras1, 0, "arrow");
 		titleArrow.loadAnim(4, 10);
@@ -202,8 +203,11 @@ public class Judgement extends Game {
 		playerMob.getAttack("sword").addAttackAnim(20, 28, 12, 4, 3, 6);
 		playerMob.getAttack("sword").addInOutAnim(16, 24, 8, 0, 1, 10);
 		playerMob.setCurrentAttack("sword"); //Starting attack
-		playerMob.setHealth(49); //If you change the starting max health, dont forget to change it in inGameMenu.java max health also
+		playerMob.setHealth(35); //If you change the starting max health, don't forget to change it in inGameMenu.java max health also
 		sprites().add(playerMob);
+		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);	//Modification
+		//sprites().add(bullet); //Modification (may be unnecessary)
+		
 		
 		//*****Initialize and setup first Map******************************************************************
 		mapBase = new MapDatabase(this, graphics(), scale);
@@ -238,7 +242,7 @@ public class Judgement extends Game {
 		if(state == STATE.TITLE) title.update(option, titleLocation); //Title Menu update
 		if(state == STATE.INGAMEMENU) inMenu.update(option, sectionLoc, playerMob.health()); //In Game Menu update
 		updateData(currentMap, currentOverlay, playerX, playerY); //Update the current file data for saving later
-//System.out.println(frameRate()); //Print the current framerate to the console
+		//System.out.println(frameRate()); //Print the current framerate to the console MODIFICATION (TEMPORARY)
 		if(waitOn) wait--;
 	}
 	
@@ -266,13 +270,14 @@ public class Judgement extends Game {
 			currentOverlay.render(this, g2d, mapX, mapY);
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
 			g2d.setColor(Color.GREEN);
-			g2d.drawString("Health: " + playerMob.getHealth(), CENTERX - 780, CENTERY - 350);
+			g2d.drawString("Health: " + inMenu.getHealth(), CENTERX - 780, CENTERY - 350);
 			g2d.setColor(Color.BLUE);
 			g2d.drawString("Magic: " + inMenu.getMagic(), CENTERX - 280, CENTERY - 350);
 			g2d.setColor(Color.YELLOW);
-			
-			//NPC IS CURRENTLY REMOVED
-			//g2d.drawString("NPC health: " + currentOverlay.accessTile(98).mob().health(), CENTERX + 200, CENTERY - 350);
+			g2d.drawString("NPC health: " + currentOverlay.accessTile(98).mob().health(), CENTERX + 200, CENTERY - 350);
+			//readyLaunch = true; //temp
+			//bullet.renderBullet(CENTERX, CENTERY); //MODIFICATION (testing)
+			//bullet.renderMob(CENTERX-5, CENTERY +5); 
 		}
 		if(state == STATE.INGAMEMENU){
 			//Render the in game menu and specific text
@@ -283,6 +288,14 @@ public class Judgement extends Game {
 		if(state == STATE.TITLE) {
 			//Render the title screen
 			title.render(this, g2d, titleX, titleY, titleX2, titleY2);
+		}
+		
+		//Render save time specific writing
+		if(option == OPTION.SAVE){
+			drawString(g2d, "Are you sure you\n      would like to save?", 660, 400);
+		}
+		if(wasSaving && wait > 0) {
+			g2d.drawString("Game Saved!", 700, 500);
 		}
 	}
 	
@@ -352,11 +365,7 @@ public class Judgement extends Game {
 
 		//Handling very specific collisions
 		if(spr1.spriteType() == TYPE.PLAYER && state == STATE.GAME){
-			if(spr2 instanceof Mob){
-				((Mob) spr2).stop();
-				//added player damage
-				playerMob.damageMob(1);
-			}
+			if(spr2 instanceof Mob) ((Mob) spr2).stop();
 			
 			//This piece of code is commented out because I still need the capability of getting a tile from an xand y position
 			/*if(((Mob) spr1).attacking() && currentOverlay.getFrontTile((Mob) spr1, playerX, playerY, CENTERX, CENTERY).getBounds().intersects(spr2.getBounds())){
@@ -369,10 +378,6 @@ public class Judgement extends Game {
 			if(playerY != 0) playerY -= shiftY;
 			if(playerX == 0) mapX -= shiftX;
 			if(playerY == 0) mapY -= shiftY;
-			
-			
-			
-			
 		}
 	}
 	
@@ -525,7 +530,7 @@ public class Judgement extends Game {
 		/********************************************
 		 * Special actions for In Game
 		 *******************************************/
-		if(state == STATE.GAME && inputWait < 0) { 
+		if(state == STATE.GAME && inputWait < 0) {
 			//A or left arrow(move left)
 			if(keyLeft) {
 				xa = xa + 1 + playerSpeed;
@@ -546,19 +551,23 @@ public class Judgement extends Game {
 				ya = ya - 1 - playerSpeed;
 				playerMob.updatePlayer(keyLeft, keyRight, keyUp, keyDown);
 			}
-			
 			//No keys are pressed
 			if(!keyLeft && !keyRight && !keyUp && !keyDown) {
 				playerMob.updatePlayer(keyLeft, keyRight, keyUp, keyDown);
 			}
 			movePlayer(xa, ya);
-		
+
+			if(arrow) { //MODIFICATION
+				playerMob.attack();	
+			}
+			//if(readyLaunch) { //MODIFICATION
+
+			//}//Modification End	
 			
 			//I(Inventory)
-			if(keyInventoryOpen) {
-				//Opens the in game menu
+			if(keyInventory) {
 				state = STATE.INGAMEMENU;
-				inputWait =	1;
+				inputWait = 10;
 			}
 			
 			//SpaceBar(action button)
@@ -597,30 +606,91 @@ public class Judgement extends Game {
 						keyEnter = false;
 					}
 					if(titleLocation == 1){
-						System.exit(0);
+						option = OPTION.LOADGAME;
+						titleLocation = 0;
+						inputWait = 5;
+						keyEnter = false;
 					}
 				}
 			}//end option none
 			
 			//After choosing an option
-			if(option == OPTION.NEWGAME){
-				state = STATE.GAME;
-				option = OPTION.NONE;
-				setGameState(STATE.GAME);
+			if(option == OPTION.NEWGAME || option == OPTION.LOADGAME){
+				//Backspace(Exit choice)
+				if(keyBack && !title.isGetName()){
+					if(option == OPTION.NEWGAME) titleLocation = 0;
+					if(option == OPTION.LOADGAME) titleLocation = 1;
+					inputWait = 5;
+					titleX2 = 340;
+					titleY2 = 310;
+					option = OPTION.NONE;
+				}
+				//S or down arrow(Change selection)
+				if(keyDown && titleLocation < 2 && !title.isGetName()) {
+					titleLocation++;
+					titleY2 += 160;
+					inputWait = 7;
+				}
+				//W or up arrow(Change selection)
+				if(keyUp && titleLocation > 0 && !title.isGetName()) {
+					titleLocation--;
+					titleY2 -= 160;
+					inputWait = 7;
+				}
 				//Enter key(Make a choice)
 				if(keyEnter && !title.isGetName()) {
 					if(option == OPTION.NEWGAME) {
-						
-						
-						state = STATE.GAME;
-						option = OPTION.NONE;
-						setGameState(STATE.GAME);
-					
+						if(title.files() != null){ //Make sure the location of a new game is greater than previous ones(Not overwriting)
+							if(title.files().length - 1 < titleLocation) {
+								title.enter();
+								titleX2 += 40;
+								inputWait = 5;
+							}
+						}
+						if(title.files() == null) { //Final check if there are no files made yet, to make the file somewhere
+							title.enter();
+							titleX2 += 40;
+							inputWait = 5;
+						}
+					}
+					//Load the currently selected file
+					if(option == OPTION.LOADGAME) {
+						currentFile = title.enter();
+						if(currentFile != "") { //File is empty
+							loadGame();
+							inputWait = 5;
+							option = OPTION.NONE;
+							state = STATE.GAME;
+							setGameState(STATE.GAME);
+						}
 					}
 				}//end enter key
 				
 				//The following is for when a new file needs to be created - Typesetting
-				
+				if(title.isGetName() == true) {
+					title.setFileName(currentChar);
+					currentChar = '\0'; //null
+					//Back space(Delete last character)
+					if(keyBack) {
+						title.deleteChar();
+						inputWait = 5;
+					}
+					//Back space(exit name entry if name has no characters)
+					if(keyBack && title.getFileName().length() == 0) {
+						title.setGetName(false);
+						titleX2 -= 40;
+						inputWait = 5;
+					}
+					//Enter key(Write the file using the currently typed name and save it)
+					if(keyEnter && title.getFileName().length() > 0) {
+						save.newFile(title.getFileName());
+						title.setGetName(false);
+						currentFile = title.getFileName();
+						state = STATE.GAME;
+						option = OPTION.NONE;
+						setGameState(STATE.GAME);
+					}
+				}//end get name
 			}//end new/load option
 		}//end title state
 		
@@ -629,9 +699,17 @@ public class Judgement extends Game {
 		 * Special actions for In Game Menu
 		 ******************************************/
 		if(state == STATE.INGAMEMENU && inputWait < 0) {
-			
+			//I(Close inventory)
+			if(keyInventory) {
+				state = STATE.GAME;
+				option = OPTION.NONE;
+				inLocation = 0;
+				inY = 90;
+				inputWait = 8;
+			}
 			//No option is chosen yet
 			if(option == OPTION.NONE){ 
+				if(wait == 0) wasSaving = false;
 				//W or up arrow(Move selection)
 				if(keyUp) {
 					if(inLocation > 0) {
@@ -642,7 +720,7 @@ public class Judgement extends Game {
 				}
 				//S or down arrow(move selection)
 				if(keyDown) {
-					if(inLocation < 3) {
+					if(inLocation < 4) {
 						inY += 108;
 						inLocation++;
 						inputWait = 10;
@@ -659,16 +737,16 @@ public class Judgement extends Game {
 						inputWait = 5;
 					}
 					if(inLocation == 2){
-						state = STATE.GAME;
-						option = OPTION.NONE;
-						inLocation = 0;
-						inY = 90;
-						inputWait = 1;
-						
+						option = OPTION.MAGIC;
+						inputWait = 5;
 					}
 					if(inLocation == 3){
-						inputWait = 1;
-						state = STATE.TITLE;
+						option = OPTION.STATUS;
+						inputWait = 5;
+					}
+					if(inLocation == 4){
+						option = OPTION.SAVE;
+						inputWait = 20;
 					}
 					keyEnter = false;
 				}
@@ -727,29 +805,31 @@ public class Judgement extends Game {
 					inputWait = 20;
 					wait = 200;
 					waitOn = true;
+					wasSaving = true;
 					option = OPTION.NONE;
 				}
 			}
 			
 			//Backspace(if a choice has been made, this backs out of it)
-			if(keyInventoryClose && option != OPTION.NONE) {
+			if(keyBack && option != OPTION.NONE) {
 				option = OPTION.NONE;
 				inMenu.setItemLoc(0);
 				sectionLoc = 0;
-				inputWait = 1;
+				inputWait = 8;
 				keyBack = false;
 			}
 			//Backspace(if a choice has not been made, this closes the inventory)
-			if(keyInventoryClose && option == OPTION.NONE) {
+			if(keyBack && option == OPTION.NONE) {
 				state = STATE.GAME;
 				option = OPTION.NONE;
 				inLocation = 0;
 				sectionLoc = 0;
 				inY = 90;
-				inputWait = 1;
+				inputWait = 8;
 			}
 		}
 		inputWait--;
+		attackWait--; //Modification
 	}
 	
 	/**
@@ -759,54 +839,47 @@ public class Judgement extends Game {
 	 * Set keys for a new game action here using a switch statement
 	 * dont forget gameKeyUp
 	 */
-	
 	void gameKeyDown(int keyCode) {
 		switch(keyCode) {
-	        case KeyEvent.VK_LEFT:
-	            keyLeft = true;
-	            break;
 	        case KeyEvent.VK_A:
 	        	keyLeft = true;
 	        	break;
-	        case KeyEvent.VK_RIGHT:
-	            keyRight = true;
-	            break;
 	        case KeyEvent.VK_D:
 	        	keyRight = true;
 	        	break;
-	        case KeyEvent.VK_UP:
-	            keyUp = true;
-	            break;
 	        case KeyEvent.VK_W:
 	        	keyUp = true;
 	        	break;
-	        case KeyEvent.VK_DOWN:
-	            keyDown = true;
+		    case KeyEvent.VK_DOWN: {//MODIFICATION_START
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
 	            break;
-	        case KeyEvent.VK_S:
+		    } case KeyEvent.VK_UP: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_RIGHT: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_LEFT: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;	 //MODIFICATION_END
+		    }
+		    case KeyEvent.VK_S:
 	        	keyDown = true;
 	        	break;
-	        case KeyEvent.VK_ESCAPE: 
-	        	escapeDown=escapeDown+1;
-	        	inLocation = 0;
-				inY = 90;
-	        	if(escapeDown ==1 && state==STATE.GAME)
-	        	{
-	        	keyInventoryOpen = true;
-	        	escapeDown=escapeDown+1;
-	        	}
-	        	
-	        	
-	        	else if(escapeDown ==1 && state == STATE.INGAMEMENU)
-	        	{
-	        	keyInventoryClose = true;
-	        	escapeDown=escapeDown+1;
-	        	}
-	        	
-	        	else{
-	        		keyInventoryClose=false;
-	        		keyInventoryOpen=false;
-	        	}	        	
+	        case KeyEvent.VK_I:
+	        	keyInventory = true;
 	        	break;
 	        case KeyEvent.VK_F:
 	        	keyAction = true;
@@ -816,20 +889,10 @@ public class Judgement extends Game {
 	        	break;
 	        case KeyEvent.VK_BACK_SPACE:
 	        	keyBack = true;
-	        	break;
+	        	break;     	
 	        case KeyEvent.VK_SPACE:
 	        	keySpace = true;
 	        	break;
-	        case KeyEvent.VK_9:
-	        	playerMob.healMob(5);
-	        	break;
-	        case KeyEvent.VK_6:
-	        	playerMob.damageMob(5);
-	        	break;
-	        case KeyEvent.VK_B:
-	        	break;
-	        	
-	        	
         }
 	}
 
@@ -842,34 +905,53 @@ public class Judgement extends Game {
 	 */
 	void gameKeyUp(int keyCode) {
 		switch(keyCode) {
-        case KeyEvent.VK_LEFT:
-            keyLeft = false;
-            break;
         case KeyEvent.VK_A:
         	keyLeft = false;
         	break;
-        case KeyEvent.VK_RIGHT:
-            keyRight = false;
-            break;
         case KeyEvent.VK_D:
         	keyRight = false;
         	break;
-        case KeyEvent.VK_UP:
-            keyUp = false;
-            break;
         case KeyEvent.VK_W:
         	keyUp = false;
         	break;
-        case KeyEvent.VK_DOWN:
-            keyDown = false;
-            break;
         case KeyEvent.VK_S:
         	keyDown = false;
         	break;
-        case KeyEvent.VK_ESCAPE:
-	    	escapeDown=0;
-        	keyInventoryOpen = false;
-        	keyInventoryClose = false;
+        case KeyEvent.VK_LEFT: {	//MODIFICATION_START
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        } case KeyEvent.VK_RIGHT: {
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        } case KeyEvent.VK_UP: {
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        } case KeyEvent.VK_DOWN: {
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        }							//MODIFICATION_END
+        case KeyEvent.VK_I:
+	    	keyInventory = false;
 	    	break;
 	    case KeyEvent.VK_F:
 	    	keyAction = false;
@@ -883,7 +965,6 @@ public class Judgement extends Game {
 	    case KeyEvent.VK_SPACE:
 	    	keySpace = false;
 	    	break;
-	    	
 		}
 	}
 
@@ -891,17 +972,19 @@ public class Judgement extends Game {
 	 * Inherited method
 	 * Currently unused
 	 */
-	void gameMouseDown() {	
+	void gameMouseDown() {
 	}
 
 	/**
 	 * Inherited method
 	 * Currently if the game is running and the sword is out, the player attacks with it
 	 */
-	void gameMouseUp() {
-		if(getMouseButtons(1) == true && playerMob.isTakenOut()) {
-			playerMob.attack();
-		}
+	void gameMouseUp() { //MODIFICATION
+		//if(getMouseButtons(1) == true && playerMob.isTakenOut()) {
+			//playerMob.attack();
+		//}
+		bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+		bullet.renderBullet(CENTERX, CENTERY); 
 	}
 
 	/**
@@ -921,4 +1004,27 @@ public class Judgement extends Game {
 	 * 
 	 * Currently only the player x and y location and the current map is saved
 	 */
+	 void loadGame() {
+		 if(currentFile != "") {
+			 System.out.println("Loading...");
+			 loadData(currentFile);
+			 tiles().clear();
+			 sprites().clear();
+			 for(int i = 0; i < mapBase.maps.length; i++){
+				 if(mapBase.getMap(i) == null) continue;
+				 if(data().getMapName() == mapBase.getMap(i).mapName()) currentMap = mapBase.getMap(i);
+				 if(data().getOverlayName() == mapBase.getMap(i).mapName()) currentOverlay = mapBase.getMap(i);
+			 }
+			 playerX = data().getPlayerX();
+			 playerY = data().getPlayerY();
+			 sprites().add(playerMob);
+			 for(int i = 0; i < currentMap.getWidth() * currentMap.getHeight(); i++){
+					addTile(currentMap.accessTile(i));
+					addTile(currentOverlay.accessTile(i));
+					if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
+					if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+			}//end for
+			System.out.println("Load Successful");
+		 } //end file is not empty check
+	 } //end load method
 } //end class
