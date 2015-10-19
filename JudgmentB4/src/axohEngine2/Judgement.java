@@ -14,7 +14,7 @@
  ****************************************************************************************************/
 //Package name
 package axohEngine2;
-//Test JLP
+
 //Imports
 import java.awt.Color;
 import java.awt.Font;
@@ -36,6 +36,7 @@ import axohEngine2.project.OPTION;
 import axohEngine2.project.STATE;
 import axohEngine2.project.TYPE;
 import axohEngine2.project.TitleMenu;
+import java.awt.Rectangle;//temporary modification?
 
 //Start class by also extending the 'Game.java' engine interface
 public class Judgement extends Game {
@@ -60,6 +61,7 @@ public class Judgement extends Game {
 	//Fonts - Variouse font sizes in the Arial style for different in game text
 	boolean keyLeft, keyRight, keyUp, keyDown, keyInventoryOpen, keyInventoryClose, keyAction, keyBack, keyEnter, keySpace = false;
 	boolean keyInventoryDown=false;
+	boolean arrow, readyLaunch; //MODIFICATION
 	
 	Random random = new Random();
 	STATE state; 
@@ -94,6 +96,7 @@ public class Judgement extends Game {
 	private Map currentOverlay;
 	private MapDatabase mapBase;
 	private int inputWait = 5;
+	private int attackWait = 0; //Modification
 	private boolean confirmUse = false;
 	
 	//----------- Menus ----------------
@@ -121,6 +124,7 @@ public class Judgement extends Game {
 	//SpriteSheets (To be split in to multiple smaller sprites)
 	SpriteSheet extras1;
 	SpriteSheet mainCharacter;
+	SpriteSheet bullets; //Modification
 	
 	//ImageEntitys (Basic pictures)
 	ImageEntity inGameMenu;
@@ -137,6 +141,7 @@ public class Judgement extends Game {
 	//Player and NPCs
 	Mob playerMob;
 	Mob randomNPC;
+	Mob bullet; //Modification
 	
 	/*********************************************************************** 
 	 * Constructor
@@ -175,6 +180,7 @@ public class Judgement extends Game {
 		//****Initialize spriteSheets*********************************************************************
 		extras1 = new SpriteSheet("/textures/extras/extras1.png", 8, 8, 32, scale);
 		mainCharacter = new SpriteSheet("/textures/characters/mainCharacter.png", 8, 8, 32, scale);
+		bullets = new SpriteSheet("/textures/weaponsArmors/Bullets.png", 16, 16, 16, 1); //MODIFICATION
 
 		//****Initialize and setup AnimatedSprites*********************************************************
 		titleArrow = new AnimatedSprite(this, graphics(), extras1, 0, "arrow");
@@ -204,6 +210,9 @@ public class Judgement extends Game {
 		playerMob.setCurrentAttack("sword"); //Starting attack
 		playerMob.setHealth(49); //If you change the starting max health, dont forget to change it in inGameMenu.java max health also
 		sprites().add(playerMob);
+		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);	//Modification
+		//sprites().add(bullet); //Modification (may be unnecessary)
+		
 		
 		//*****Initialize and setup first Map******************************************************************
 		mapBase = new MapDatabase(this, graphics(), scale);
@@ -552,6 +561,13 @@ public class Judgement extends Game {
 				playerMob.updatePlayer(keyLeft, keyRight, keyUp, keyDown);
 			}
 			movePlayer(xa, ya);
+			
+			if(arrow) { //MODIFICATION
+				playerMob.attack();	
+			}
+			//if(readyLaunch) { //MODIFICATION
+
+			//}//Modification End	
 		
 			
 			//I(Inventory)
@@ -750,6 +766,7 @@ public class Judgement extends Game {
 			}
 		}
 		inputWait--;
+		attackWait--; //Modification
 	}
 	
 	/**
@@ -762,27 +779,15 @@ public class Judgement extends Game {
 	
 	void gameKeyDown(int keyCode) {
 		switch(keyCode) {
-	        case KeyEvent.VK_LEFT:
-	            keyLeft = true;
-	            break;
 	        case KeyEvent.VK_A:
 	        	keyLeft = true;
 	        	break;
-	        case KeyEvent.VK_RIGHT:
-	            keyRight = true;
-	            break;
 	        case KeyEvent.VK_D:
 	        	keyRight = true;
 	        	break;
-	        case KeyEvent.VK_UP:
-	            keyUp = true;
-	            break;
 	        case KeyEvent.VK_W:
 	        	keyUp = true;
 	        	break;
-	        case KeyEvent.VK_DOWN:
-	            keyDown = true;
-	            break;
 	        case KeyEvent.VK_S:
 	        	keyDown = true;
 	        	break;
@@ -829,8 +834,35 @@ public class Judgement extends Game {
 	        case KeyEvent.VK_B:
 	        	break;
 	        	
+	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_UP: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_RIGHT: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_LEFT: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;	 //MODIFICATION_END
+	        	
+	        	
 	        	
         }
+		}
 	}
 
 	/**
@@ -842,30 +874,51 @@ public class Judgement extends Game {
 	 */
 	void gameKeyUp(int keyCode) {
 		switch(keyCode) {
-        case KeyEvent.VK_LEFT:
-            keyLeft = false;
-            break;
         case KeyEvent.VK_A:
         	keyLeft = false;
         	break;
-        case KeyEvent.VK_RIGHT:
-            keyRight = false;
-            break;
         case KeyEvent.VK_D:
         	keyRight = false;
         	break;
-        case KeyEvent.VK_UP:
-            keyUp = false;
-            break;
         case KeyEvent.VK_W:
         	keyUp = false;
         	break;
-        case KeyEvent.VK_DOWN:
-            keyDown = false;
-            break;
         case KeyEvent.VK_S:
         	keyDown = false;
         	break;
+        case KeyEvent.VK_LEFT: {	//MODIFICATION_START
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        } case KeyEvent.VK_RIGHT: {
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        } case KeyEvent.VK_UP: {
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        } case KeyEvent.VK_DOWN: {
+        	if(arrow == true) {
+        		arrow = false;
+				System.out.println("shots fired."); //temporary
+				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+				bullet.renderBullet(CENTERX, CENTERY); 
+        	}
+            break;
+        }							//MODIFICATION_END
         case KeyEvent.VK_ESCAPE:
 	    	escapeDown=0;
         	keyInventoryOpen = false;
@@ -898,10 +951,12 @@ public class Judgement extends Game {
 	 * Inherited method
 	 * Currently if the game is running and the sword is out, the player attacks with it
 	 */
-	void gameMouseUp() {
-		if(getMouseButtons(1) == true && playerMob.isTakenOut()) {
-			playerMob.attack();
-		}
+	void gameMouseUp() { //MODIFICATION
+		//if(getMouseButtons(1) == true && playerMob.isTakenOut()) {
+			//playerMob.attack();
+		//}
+		bullet.renderMob(CENTERX + 128, CENTERY + 128); 
+		bullet.renderBullet(CENTERX, CENTERY); 
 	}
 
 	/**
