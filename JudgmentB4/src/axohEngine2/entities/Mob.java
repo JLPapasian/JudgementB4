@@ -478,6 +478,12 @@ public class Mob extends AnimatedSprite{
 		entity.setY(y + yy);
 	}
 	
+	public void renderBullet(int x, int y) { //Modifications
+		g2d.drawImage(getImage(), x, y, getSpriteSize(), getSpriteSize(), frame);
+		entity.setX(x);
+		entity.setY(y);
+	}
+	
 	//Used for damaging characters
 	public void damageMob(int damage)
 	{
