@@ -58,7 +58,7 @@ public class Judgement extends Game {
 	//state - Game states used to show specific info ie. pause/running
 	//option - In game common choices at given times
 	//Fonts - Variouse font sizes in the Arial style for different in game text
-	boolean keyLeft, keyRight, keyUp, keyDown, keyInventory, keyAction, keyBack, keyEnter, keySpace;
+	boolean keyLeft, keyRight, keyUp, keyDown, keyInventoryOpen, keyInventoryClose, keyAction, keyBack, keyEnter, keySpace = false;
 	boolean keyInventoryDown=false;
 	
 	Random random = new Random();
@@ -82,6 +82,7 @@ public class Judgement extends Game {
 	private int startPosX;
 	private int startPosY;
 	private int playerSpeed;
+	
 	
 	//----------- Map and input --------
 	//currentMap - The currently displayed map the player can explore
@@ -110,9 +111,11 @@ public class Judgement extends Game {
 	private int titleX2 = 340, titleY2 = 310;
 	private int titleLocation;
 	private String currentFile;
-	private boolean wasSaving = false;
 	private int wait;
 	private boolean waitOn = false;
+	
+	private int escapeDown = 0;
+	
 	
 	//----------- Game  -----------------
 	//SpriteSheets (To be split in to multiple smaller sprites)
@@ -280,14 +283,6 @@ public class Judgement extends Game {
 		if(state == STATE.TITLE) {
 			//Render the title screen
 			title.render(this, g2d, titleX, titleY, titleX2, titleY2);
-		}
-		
-		//Render save time specific writing
-		if(option == OPTION.SAVE){
-			drawString(g2d, "Are you sure you\n      would like to save?", 660, 400);
-		}
-		if(wasSaving && wait > 0) {
-			g2d.drawString("Game Saved!", 700, 500);
 		}
 	}
 	
@@ -560,7 +555,8 @@ public class Judgement extends Game {
 		
 			
 			//I(Inventory)
-			if(keyInventory) {
+			if(keyInventoryOpen) {
+				//Opens the in game menu
 				state = STATE.INGAMEMENU;
 				inputWait =	1;
 			}
@@ -601,11 +597,7 @@ public class Judgement extends Game {
 						keyEnter = false;
 					}
 					if(titleLocation == 1){
-						//option = OPTION.LOADGAME;
 						System.exit(0);
-						titleLocation = 0;
-						inputWait = 5;
-						keyEnter = false;
 					}
 				}
 			}//end option none
@@ -640,7 +632,6 @@ public class Judgement extends Game {
 			
 			//No option is chosen yet
 			if(option == OPTION.NONE){ 
-				if(wait == 0) wasSaving = false;
 				//W or up arrow(Move selection)
 				if(keyUp) {
 					if(inLocation > 0) {
@@ -651,7 +642,7 @@ public class Judgement extends Game {
 				}
 				//S or down arrow(move selection)
 				if(keyDown) {
-					if(inLocation < 4) {
+					if(inLocation < 3) {
 						inY += 108;
 						inLocation++;
 						inputWait = 10;
@@ -668,19 +659,16 @@ public class Judgement extends Game {
 						inputWait = 5;
 					}
 					if(inLocation == 2){
-						option = OPTION.MAGIC;
-						inputWait = 5;
-					}
-					if(inLocation == 3){
-						inputWait = 1;
-						state = STATE.TITLE;
-					}
-					if(inLocation == 4){					
 						state = STATE.GAME;
 						option = OPTION.NONE;
 						inLocation = 0;
 						inY = 90;
 						inputWait = 1;
+						
+					}
+					if(inLocation == 3){
+						inputWait = 1;
+						state = STATE.TITLE;
 					}
 					keyEnter = false;
 				}
@@ -739,27 +727,26 @@ public class Judgement extends Game {
 					inputWait = 20;
 					wait = 200;
 					waitOn = true;
-					wasSaving = true;
 					option = OPTION.NONE;
 				}
 			}
 			
 			//Backspace(if a choice has been made, this backs out of it)
-			if(keyBack && option != OPTION.NONE) {
+			if(keyInventoryClose && option != OPTION.NONE) {
 				option = OPTION.NONE;
 				inMenu.setItemLoc(0);
 				sectionLoc = 0;
-				inputWait = 8;
+				inputWait = 1;
 				keyBack = false;
 			}
 			//Backspace(if a choice has not been made, this closes the inventory)
-			if(keyBack && option == OPTION.NONE) {
+			if(keyInventoryClose && option == OPTION.NONE) {
 				state = STATE.GAME;
 				option = OPTION.NONE;
 				inLocation = 0;
 				sectionLoc = 0;
 				inY = 90;
-				inputWait = 8;
+				inputWait = 1;
 			}
 		}
 		inputWait--;
@@ -772,6 +759,7 @@ public class Judgement extends Game {
 	 * Set keys for a new game action here using a switch statement
 	 * dont forget gameKeyUp
 	 */
+	
 	void gameKeyDown(int keyCode) {
 		switch(keyCode) {
 	        case KeyEvent.VK_LEFT:
@@ -799,7 +787,26 @@ public class Judgement extends Game {
 	        	keyDown = true;
 	        	break;
 	        case KeyEvent.VK_ESCAPE: 
-	        		keyInventory = true;	
+	        	escapeDown=escapeDown+1;
+	        	inLocation = 0;
+				inY = 90;
+	        	if(escapeDown ==1 && state==STATE.GAME)
+	        	{
+	        	keyInventoryOpen = true;
+	        	escapeDown=escapeDown+1;
+	        	}
+	        	
+	        	
+	        	else if(escapeDown ==1 && state == STATE.INGAMEMENU)
+	        	{
+	        	keyInventoryClose = true;
+	        	escapeDown=escapeDown+1;
+	        	}
+	        	
+	        	else{
+	        		keyInventoryClose=false;
+	        		keyInventoryOpen=false;
+	        	}	        	
 	        	break;
 	        case KeyEvent.VK_F:
 	        	keyAction = true;
@@ -822,7 +829,7 @@ public class Judgement extends Game {
 	        case KeyEvent.VK_B:
 	        	break;
 	        	
-	        
+	        	
         }
 	}
 
@@ -860,7 +867,9 @@ public class Judgement extends Game {
         	keyDown = false;
         	break;
         case KeyEvent.VK_ESCAPE:
-	    	keyInventory = false;
+	    	escapeDown=0;
+        	keyInventoryOpen = false;
+        	keyInventoryClose = false;
 	    	break;
 	    case KeyEvent.VK_F:
 	    	keyAction = false;
@@ -874,6 +883,7 @@ public class Judgement extends Game {
 	    case KeyEvent.VK_SPACE:
 	    	keySpace = false;
 	    	break;
+	    	
 		}
 	}
 
