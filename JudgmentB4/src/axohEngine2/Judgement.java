@@ -762,27 +762,15 @@ public class Judgement extends Game {
 	
 	void gameKeyDown(int keyCode) {
 		switch(keyCode) {
-	        case KeyEvent.VK_LEFT:
-	            keyLeft = true;
-	            break;
 	        case KeyEvent.VK_A:
 	        	keyLeft = true;
 	        	break;
-	        case KeyEvent.VK_RIGHT:
-	            keyRight = true;
-	            break;
 	        case KeyEvent.VK_D:
 	        	keyRight = true;
-	        	break;
-	        case KeyEvent.VK_UP:
-	            keyUp = true;
-	            break;
+	        	break;;
 	        case KeyEvent.VK_W:
 	        	keyUp = true;
 	        	break;
-	        case KeyEvent.VK_DOWN:
-	            keyDown = true;
-	            break;
 	        case KeyEvent.VK_S:
 	        	keyDown = true;
 	        	break;
@@ -829,8 +817,35 @@ public class Judgement extends Game {
 	        case KeyEvent.VK_B:
 	        	break;
 	        	
+	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_UP: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_RIGHT: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;
+		    } case KeyEvent.VK_LEFT: {
+		    	if(attackWait <= 0) {
+		    		attackWait = 70;
+		    		arrow = true;
+		    	}
+	            break;	 //MODIFICATION_END
+	        	
+	        	
 	        	
         }
+		}
 	}
 
 	/**
