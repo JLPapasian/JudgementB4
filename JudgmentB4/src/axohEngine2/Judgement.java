@@ -61,7 +61,7 @@ public class Judgement extends Game {
 	//Fonts - Variouse font sizes in the Arial style for different in game text
 	boolean keyLeft, keyRight, keyUp, keyDown, keyInventoryOpen, keyInventoryClose, keyAction, keyBack, keyEnter, keySpace = false;
 	boolean keyInventoryDown=false;
-	boolean arrow, readyLaunch; //MODIFICATION
+	boolean arrow, bulletSpawned; //MODIFICATION
 	
 	Random random = new Random();
 	STATE state; 
@@ -97,6 +97,7 @@ public class Judgement extends Game {
 	private MapDatabase mapBase;
 	private int inputWait = 5;
 	private int attackWait = 0; //Modification
+	private int bulletSpawnTime = 0; //Modification
 	private boolean confirmUse = false;
 	
 	//----------- Menus ----------------
@@ -170,8 +171,8 @@ public class Judgement extends Game {
 		//****Initialize Misc Variables
 		state = STATE.TITLE;
 		option = OPTION.NONE;
-		startPosX = 300; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
-		startPosY = 0;
+		startPosX = -400; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
+		startPosY = -400;
 		mapX = startPosX;
 		mapY = startPosY;
 		scale = 4;
@@ -210,8 +211,9 @@ public class Judgement extends Game {
 		playerMob.setCurrentAttack("sword"); //Starting attack
 		playerMob.setHealth(49); //If you change the starting max health, dont forget to change it in inGameMenu.java max health also
 		sprites().add(playerMob);
-		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);	//Modification
-		//sprites().add(bullet); //Modification (may be unnecessary)
+		
+		//Projectile
+		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);
 		
 		
 		//*****Initialize and setup first Map******************************************************************
@@ -220,16 +222,16 @@ public class Judgement extends Game {
 		for(int i = 0; i < mapBase.maps.length; i++){
 			if(mapBase.getMap(i) == null) continue;
 			if(mapBase.getMap(i).mapName() == "city") currentMap = mapBase.getMap(i);
-		//	if(mapBase.getMap(i).mapName() == "cityO") currentOverlay = mapBase.getMap(i);
+			if(mapBase.getMap(i).mapName() == "cityO") currentOverlay = mapBase.getMap(i);
 		}
 		//Add the tiles from the map to be updated each system cycle
 		for(int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++){
 			addTile(currentMap.accessTile(i));
-			//addTile(currentOverlay.accessTile(i));
+			addTile(currentOverlay.accessTile(i));
 			if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
-			//if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+			if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
 			currentMap.accessTile(i).getEntity().setX(-300);
-			//currentOverlay.accessTile(i).getEntity().setX(-300);
+			currentOverlay.accessTile(i).getEntity().setX(-300);
 		}
 		
 		requestFocus(); //Make sure the game is focused on
@@ -246,7 +248,7 @@ public class Judgement extends Game {
 		//Update certain specifics based on certain game states
 		if(state == STATE.TITLE) title.update(option, titleLocation); //Title Menu update
 		if(state == STATE.INGAMEMENU) inMenu.update(option, sectionLoc, playerMob.health()); //In Game Menu update
-		updateData(currentMap,currentMap, playerX, playerY); //Update the current file data for saving later
+		updateData(currentMap, currentOverlay, playerX, playerY); //Update the current file data for saving later
 //System.out.println(frameRate()); //Print the current framerate to the console
 		if(waitOn) wait--;
 	}
@@ -272,8 +274,13 @@ public class Judgement extends Game {
 		if(state == STATE.GAME) {
 			//Render the map, the player, any NPCs or Monsters and the player health or status
 			currentMap.render(this, g2d, mapX, mapY);
-		//	currentOverlay.render(this, g2d, mapX, mapY);
+			currentOverlay.render(this, g2d, mapX, mapY);
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
+			if(bulletSpawned == true && bulletSpawnTime < 250) {
+				bullet.renderMob(CENTERX - playerX + 5, CENTERY - playerY + 44);
+				bullet.moveBullet(-1, 0);
+				bulletSpawnTime++;
+			}
 			g2d.setColor(Color.GREEN);
 			g2d.drawString("Health: " + playerMob.getHealth(), CENTERX - 780, CENTERY - 350);
 			g2d.setColor(Color.BLUE);
@@ -376,15 +383,8 @@ public class Judgement extends Game {
 			//Handle simple push back collision
 			if(playerX != 0) playerX -= shiftX;
 			if(playerY != 0) playerY -= shiftY;
-			if(playerX == 0) playerX -= shiftX;
-			if(playerY == 0) playerY -= shiftY;
-		
-			
-			//if(playerX == 0) mapX -= shiftX;
-		//	if(playerY == 0) mapY -= shiftY;
-			
-			
-			
+			if(playerX == 0) mapX -= shiftX;
+			if(playerY == 0) mapY -= shiftY;
 			
 		}
 	}
@@ -447,14 +447,14 @@ public class Judgement extends Game {
 					for(int i = 0; i < mapBase.maps.length; i++){
 						 if(mapBase.getMap(i) == null) continue;
 						 if(tile.event().getMapName() == mapBase.getMap(i).mapName()) currentMap = mapBase.getMap(i);
-						// if(tile.event().getOverlayName() == mapBase.getMap(i).mapName()) currentOverlay = mapBase.getMap(i);
+						 if(tile.event().getOverlayName() == mapBase.getMap(i).mapName()) currentOverlay = mapBase.getMap(i);
 					}
 					//Load in the new maps Tiles and Mobs
 					for(int i = 0; i < currentMap.getWidth() * currentMap.getHeight(); i++){
 						addTile(currentMap.accessTile(i));
-						//addTile(currentOverlay.accessTile(i));
+						addTile(currentOverlay.accessTile(i));
 						if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
-						//if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+						if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
 					}
 					//Move the player to the new position
 					playerX = tile.event().getNewX();
@@ -497,16 +497,20 @@ public class Judgement extends Game {
 	 ******************************************************************/
 	void movePlayer(int xa, int ya) {
 		if(xa > 0) {
-		 playerX += xa; //left +#
+			if(mapX + xa < currentMap.getMinX() && playerX < playerSpeed && playerX > -playerSpeed) mapX += xa;
+			else playerX += xa; //left +#
 		}
 		if(xa < 0) {
-		 playerX += xa; //right -#
+			if(mapX + xa > currentMap.getMaxX(SCREENWIDTH) && playerX < playerSpeed && playerX > -playerSpeed) mapX += xa;
+			else playerX += xa; //right -#
 		}
 		if(ya > 0) {
-			playerY += ya; //up +#
+			if(mapY + ya < currentMap.getMinY() && playerY < playerSpeed && playerY > -playerSpeed) mapY += ya;
+			else playerY += ya; //up +#
 		}
 		if(ya < 0) {
-			 playerY += ya; //down -#
+			if(mapY + ya > currentMap.getMaxY(SCREENHEIGHT) && playerY < playerSpeed && playerY > -playerSpeed) mapY += ya;
+			else playerY += ya; //down -#
 		}
 	}
 	
@@ -535,22 +539,18 @@ public class Judgement extends Game {
 		 * Special actions for In Game
 		 *******************************************/
 		if(state == STATE.GAME && inputWait < 0) { 
-			//A or left arrow(move left)
 			if(keyLeft) {
 				xa = xa + 1 + playerSpeed;
 				playerMob.updatePlayer(keyLeft, keyRight, keyUp, keyDown);
 			}
-			//D or right arrow(move right)
 			if(keyRight) {
 				xa = xa - 1 - playerSpeed;
 				playerMob.updatePlayer(keyLeft, keyRight, keyUp, keyDown);
 			}
-			//W or up arrow(move up)
 			if(keyUp) {
 				ya = ya + 1 + playerSpeed;
 				playerMob.updatePlayer(keyLeft, keyRight, keyUp, keyDown);
 			}
-			//S or down arrow(move down)
 			if(keyDown) {
 				ya = ya - 1 - playerSpeed;
 				playerMob.updatePlayer(keyLeft, keyRight, keyUp, keyDown);
@@ -565,9 +565,6 @@ public class Judgement extends Game {
 			if(arrow) { //MODIFICATION
 				playerMob.attack();	
 			}
-			//if(readyLaunch) { //MODIFICATION
-
-			//}//Modification End	
 		
 			
 			//I(Inventory)
@@ -767,6 +764,12 @@ public class Judgement extends Game {
 		}
 		inputWait--;
 		attackWait--; //Modification
+		if(bulletSpawnTime == 250) {
+			//bullet.setLoc(playerX, playerY); Doesn't work
+			bulletSpawned = false;
+			bulletSpawnTime = 0;
+			System.out.println("Reset");
+		}
 	}
 	
 	/**
@@ -801,6 +804,7 @@ public class Judgement extends Game {
 	        	escapeDown=escapeDown+1;
 	        	}
 	        	
+	        	
 	        	else if(escapeDown ==1 && state == STATE.INGAMEMENU)
 	        	{
 	        	keyInventoryClose = true;
@@ -834,25 +838,25 @@ public class Judgement extends Game {
 	        	break;
 	        	
 	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
-		    	if(attackWait <= 0) {
+		    	if(attackWait <= 0 && bulletSpawned == false) {
 		    		attackWait = 70;
 		    		arrow = true;
 		    	}
 	            break;
 		    } case KeyEvent.VK_UP: {
-		    	if(attackWait <= 0) {
+		    	if(attackWait <= 0 && bulletSpawned == false) {
 		    		attackWait = 70;
 		    		arrow = true;
 		    	}
 	            break;
 		    } case KeyEvent.VK_RIGHT: {
-		    	if(attackWait <= 0) {
+		    	if(attackWait <= 0 && bulletSpawned == false) {
 		    		attackWait = 70;
 		    		arrow = true;
 		    	}
 	            break;
 		    } case KeyEvent.VK_LEFT: {
-		    	if(attackWait <= 0) {
+		    	if(attackWait <= 0 && bulletSpawned == false) {
 		    		attackWait = 70;
 		    		arrow = true;
 		    	}
@@ -888,36 +892,28 @@ public class Judgement extends Game {
         case KeyEvent.VK_LEFT: {	//MODIFICATION_START
         	if(arrow == true) {
         		arrow = false;
-				System.out.println("shots fired."); //temporary
-				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
-				bullet.renderBullet(CENTERX, CENTERY); 
+				bulletSpawned = true;
         	}
             break;
         } case KeyEvent.VK_RIGHT: {
         	if(arrow == true) {
         		arrow = false;
-				System.out.println("shots fired."); //temporary
-				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
-				bullet.renderBullet(CENTERX, CENTERY); 
+				bulletSpawned = true;
         	}
             break;
         } case KeyEvent.VK_UP: {
         	if(arrow == true) {
         		arrow = false;
-				System.out.println("shots fired."); //temporary
-				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
-				bullet.renderBullet(CENTERX, CENTERY); 
+				bulletSpawned = true;
         	}
             break;
         } case KeyEvent.VK_DOWN: {
         	if(arrow == true) {
         		arrow = false;
-				System.out.println("shots fired."); //temporary
-				bullet.renderMob(CENTERX + 128, CENTERY + 128); 
-				bullet.renderBullet(CENTERX, CENTERY); 
+				bulletSpawned = true;
         	}
             break;
-        }							//MODIFICATION_END
+        }						
         case KeyEvent.VK_ESCAPE:
 	    	escapeDown=0;
         	keyInventoryOpen = false;
@@ -935,7 +931,6 @@ public class Judgement extends Game {
 	    case KeyEvent.VK_SPACE:
 	    	keySpace = false;
 	    	break;
-	    	
 		}
 	}
 
@@ -944,18 +939,15 @@ public class Judgement extends Game {
 	 * Currently unused
 	 */
 	void gameMouseDown() {	
+		
 	}
 
 	/**
 	 * Inherited method
 	 * Currently if the game is running and the sword is out, the player attacks with it
 	 */
-	void gameMouseUp() { //MODIFICATION
-		//if(getMouseButtons(1) == true && playerMob.isTakenOut()) {
-			//playerMob.attack();
-		//}
-		bullet.renderMob(CENTERX + 128, CENTERY + 128); 
-		bullet.renderBullet(CENTERX, CENTERY); 
+	void gameMouseUp() {
+		
 	}
 
 	/**
@@ -963,6 +955,7 @@ public class Judgement extends Game {
 	 * Currently unused
 	 */
 	void gameMouseMove() {
+		
 	}
 	 
 	 //From the title screen, load a game file by having the super class get the data,
