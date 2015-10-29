@@ -170,8 +170,8 @@ public class Judgement extends Game {
 		//****Initialize Misc Variables
 		state = STATE.TITLE;
 		option = OPTION.NONE;
-		startPosX = -400; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
-		startPosY = -400;
+		startPosX = 300; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
+		startPosY = 0;
 		mapX = startPosX;
 		mapY = startPosY;
 		scale = 4;
@@ -376,8 +376,12 @@ public class Judgement extends Game {
 			//Handle simple push back collision
 			if(playerX != 0) playerX -= shiftX;
 			if(playerY != 0) playerY -= shiftY;
-			if(playerX == 0) mapX -= shiftX;
-			if(playerY == 0) mapY -= shiftY;
+			if(playerX == 0) playerX -= shiftX;
+			if(playerY == 0) playerY -= shiftY;
+		
+			
+			//if(playerX == 0) mapX -= shiftX;
+		//	if(playerY == 0) mapY -= shiftY;
 			
 			
 			
@@ -493,20 +497,16 @@ public class Judgement extends Game {
 	 ******************************************************************/
 	void movePlayer(int xa, int ya) {
 		if(xa > 0) {
-			if(mapX + xa < currentMap.getMinX() && playerX < playerSpeed && playerX > -playerSpeed) mapX += xa;
-			else playerX += xa; //left +#
+		 playerX += xa; //left +#
 		}
 		if(xa < 0) {
-			if(mapX + xa > currentMap.getMaxX(SCREENWIDTH) && playerX < playerSpeed && playerX > -playerSpeed) mapX += xa;
-			else playerX += xa; //right -#
+		 playerX += xa; //right -#
 		}
 		if(ya > 0) {
-			if(mapY + ya < currentMap.getMinY() && playerY < playerSpeed && playerY > -playerSpeed) mapY += ya;
-			else playerY += ya; //up +#
+			playerY += ya; //up +#
 		}
 		if(ya < 0) {
-			if(mapY + ya > currentMap.getMaxY(SCREENHEIGHT) && playerY < playerSpeed && playerY > -playerSpeed) mapY += ya;
-			else playerY += ya; //down -#
+			 playerY += ya; //down -#
 		}
 	}
 	
@@ -800,7 +800,6 @@ public class Judgement extends Game {
 	        	keyInventoryOpen = true;
 	        	escapeDown=escapeDown+1;
 	        	}
-	        	
 	        	
 	        	else if(escapeDown ==1 && state == STATE.INGAMEMENU)
 	        	{
