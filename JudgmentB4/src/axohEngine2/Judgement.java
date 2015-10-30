@@ -36,6 +36,10 @@ import axohEngine2.project.OPTION;
 import axohEngine2.project.STATE;
 import axohEngine2.project.TYPE;
 import axohEngine2.project.TitleMenu;
+import axohEngine2.sound.Audio;
+import  sun.audio.*;    //import the sun.audio package
+
+import  java.io.*;
 import java.awt.Rectangle;//temporary modification?
 
 //Start class by also extending the 'Game.java' engine interface
@@ -85,6 +89,11 @@ public class Judgement extends Game {
 	private int startPosY;
 	private int playerSpeed;
 	
+	private int bulletX;
+	private int bulletY;
+	private int bulletXDelta;
+	private int bulletYDelta;
+	
 	
 	//----------- Map and input --------
 	//currentMap - The currently displayed map the player can explore
@@ -99,6 +108,7 @@ public class Judgement extends Game {
 	private int attackWait = 0; //Modification
 	private int bulletSpawnTime = 0; //Modification
 	private boolean confirmUse = false;
+	private boolean justonce = true;
 	
 	//----------- Menus ----------------
 	//inX/inY - In Game Menu starting location for default choice highlight
@@ -177,6 +187,20 @@ public class Judgement extends Game {
 		mapY = startPosY;
 		scale = 4;
 		playerSpeed = 3;
+		
+		try {
+		Audio.PlayAudio(false);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+		//	Audio.PlayAudio(true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//****Initialize spriteSheets*********************************************************************
 		extras1 = new SpriteSheet("/textures/extras/extras1.png", 8, 8, 32, scale);
@@ -276,11 +300,35 @@ public class Judgement extends Game {
 			currentMap.render(this, g2d, mapX, mapY);
 			//currentOverlay.render(this, g2d, mapX, mapY);
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
+			
+			if(bulletSpawned == true && bulletSpawnTime < 250) {
+				if(bulletSpawnTime==0)
+				{
+					bulletX=CENTERX - playerX+50;
+					bulletY=CENTERY - playerY+50;
+				}
+				
+				bullet.renderMob(bulletX, bulletY);
+				//bullet.moveBullet(-1, 0); //commented out temporarily for testing.
+				//It seems the issue with the bullet not resetting was caused by the moveBullet function
+				
+				bulletX=bulletX-bulletXDelta; 
+				bulletY=bulletY-bulletYDelta;
+				
+				bulletSpawnTime++;
+			}
+			
+			
+			
+			/*
 			if(bulletSpawned == true && bulletSpawnTime < 250) {
 				bullet.renderMob(CENTERX - playerX + 5, CENTERY - playerY + 44);
 				bullet.moveBullet(-1, 0);
 				bulletSpawnTime++;
 			}
+*/
+			
+			
 			g2d.setColor(Color.GREEN);
 			g2d.drawString("Health: " + playerMob.getHealth(), CENTERX - 780, CENTERY - 350);
 			g2d.setColor(Color.BLUE);
@@ -473,8 +521,8 @@ public class Judgement extends Game {
 		if(spr.spriteType() == TYPE.PLAYER && tile.solid() && state == STATE.GAME) {
 			if(playerX != 0) playerX -= shiftX;
 			if(playerY != 0) playerY -= shiftY;
-			if(playerX == 0) mapX -= shiftX;
-			if(playerY == 0) mapY -= shiftY;
+			if(playerX == 0) playerX -= shiftX;
+			if(playerY == 0) playerY -= shiftY;
 			return;
 		}
 		//If an npc is intersecting a solid tile, move it off
@@ -569,7 +617,7 @@ public class Judgement extends Game {
 				inputWait =	1;
 			}
 			
-			//SpaceBar(action button)
+			//SpaceBar(action button)a
 			if(keySpace) {
 				playerMob.inOutItem();
 				inputWait = 10;
@@ -580,6 +628,8 @@ public class Judgement extends Game {
 		 * Special actions for the Title Menu
 		 *****************************************/
 		if(state == STATE.TITLE && inputWait < 0){
+			    
+			    
 			//For when no initial choice has been made
 			if(option == OPTION.NONE){
 				//S or down arrow(Change selection)
@@ -620,9 +670,11 @@ public class Judgement extends Game {
 					if(option == OPTION.NEWGAME) {
 						
 						
+						
 						state = STATE.GAME;
 						option = OPTION.NONE;
 						setGameState(STATE.GAME);
+					
 					
 					}
 				}//end enter key
@@ -631,6 +683,8 @@ public class Judgement extends Game {
 				
 			}//end new/load option
 		}//end title state
+			
+			
 		
 		
 		/******************************************
@@ -759,7 +813,7 @@ public class Judgement extends Game {
 		}
 		inputWait--;
 		attackWait--; //Modification
-		if(bulletSpawnTime == 250) {
+		if(bulletSpawnTime == 50) {
 			//bullet.setLoc(playerX, playerY); Doesn't work
 			bulletSpawned = false;
 			bulletSpawnTime = 0;
@@ -834,26 +888,35 @@ public class Judgement extends Game {
 	        	
 	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=0; //Resets the bullet x delta
+		    		bulletYDelta=-10; //changes the bullet y delta
+		    						/////// Does the same for each direction
 		    	}
 	            break;
 		    } case KeyEvent.VK_UP: {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=0;
+		    		bulletYDelta=10;
 		    	}
 	            break;
 		    } case KeyEvent.VK_RIGHT: {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=-10;
+		    		bulletYDelta=0;
 		    	}
 	            break;
 		    } case KeyEvent.VK_LEFT: {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=10;
+		    		bulletYDelta=0;
 		    	}
 	            break;	 //MODIFICATION_END
 	        	
