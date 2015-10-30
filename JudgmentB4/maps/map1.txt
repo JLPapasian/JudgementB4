@@ -8,6 +8,6 @@ b b r b b b r r r r r b b
 b b r r r r r r r r r b b
 b b r r r r r r r r r b b
 b b r r r r r r r r r b b
-b b r r r r r r r r r b b
+b b r r r r b f f r r b b
 b b r r r r r r r r r b b
 b b b b b b b b r b b b b

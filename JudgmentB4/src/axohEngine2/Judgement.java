@@ -89,6 +89,11 @@ public class Judgement extends Game {
 	private int startPosY;
 	private int playerSpeed;
 	
+	private int bulletX;
+	private int bulletY;
+	private int bulletXDelta;
+	private int bulletYDelta;
+	
 	
 	//----------- Map and input --------
 	//currentMap - The currently displayed map the player can explore
@@ -295,11 +300,35 @@ public class Judgement extends Game {
 			currentMap.render(this, g2d, mapX, mapY);
 			//currentOverlay.render(this, g2d, mapX, mapY);
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
+			
+			if(bulletSpawned == true && bulletSpawnTime < 250) {
+				if(bulletSpawnTime==0)
+				{
+					bulletX=CENTERX - playerX+50;
+					bulletY=CENTERY - playerY+50;
+				}
+				
+				bullet.renderMob(bulletX, bulletY);
+				//bullet.moveBullet(-1, 0); //commented out temporarily for testing.
+				//It seems the issue with the bullet not resetting was caused by the moveBullet function
+				
+				bulletX=bulletX-bulletXDelta; 
+				bulletY=bulletY-bulletYDelta;
+				
+				bulletSpawnTime++;
+			}
+			
+			
+			
+			/*
 			if(bulletSpawned == true && bulletSpawnTime < 250) {
 				bullet.renderMob(CENTERX - playerX + 5, CENTERY - playerY + 44);
 				bullet.moveBullet(-1, 0);
 				bulletSpawnTime++;
 			}
+*/
+			
+			
 			g2d.setColor(Color.GREEN);
 			g2d.drawString("Health: " + playerMob.getHealth(), CENTERX - 780, CENTERY - 350);
 			g2d.setColor(Color.BLUE);
@@ -492,8 +521,8 @@ public class Judgement extends Game {
 		if(spr.spriteType() == TYPE.PLAYER && tile.solid() && state == STATE.GAME) {
 			if(playerX != 0) playerX -= shiftX;
 			if(playerY != 0) playerY -= shiftY;
-			if(playerX == 0) mapX -= shiftX;
-			if(playerY == 0) mapY -= shiftY;
+			if(playerX == 0) playerX -= shiftX;
+			if(playerY == 0) playerY -= shiftY;
 			return;
 		}
 		//If an npc is intersecting a solid tile, move it off
@@ -784,7 +813,7 @@ public class Judgement extends Game {
 		}
 		inputWait--;
 		attackWait--; //Modification
-		if(bulletSpawnTime == 250) {
+		if(bulletSpawnTime == 50) {
 			//bullet.setLoc(playerX, playerY); Doesn't work
 			bulletSpawned = false;
 			bulletSpawnTime = 0;
@@ -859,26 +888,35 @@ public class Judgement extends Game {
 	        	
 	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=0; //Resets the bullet x delta
+		    		bulletYDelta=-10; //changes the bullet y delta
+		    						/////// Does the same for each direction
 		    	}
 	            break;
 		    } case KeyEvent.VK_UP: {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=0;
+		    		bulletYDelta=10;
 		    	}
 	            break;
 		    } case KeyEvent.VK_RIGHT: {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=-10;
+		    		bulletYDelta=0;
 		    	}
 	            break;
 		    } case KeyEvent.VK_LEFT: {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
-		    		attackWait = 70;
+		    		attackWait = 30;
 		    		arrow = true;
+		    		bulletXDelta=10;
+		    		bulletYDelta=0;
 		    	}
 	            break;	 //MODIFICATION_END
 	        	
