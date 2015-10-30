@@ -36,6 +36,10 @@ import axohEngine2.project.OPTION;
 import axohEngine2.project.STATE;
 import axohEngine2.project.TYPE;
 import axohEngine2.project.TitleMenu;
+import axohEngine2.sound.Audio;
+import  sun.audio.*;    //import the sun.audio package
+
+import  java.io.*;
 import java.awt.Rectangle;//temporary modification?
 
 //Start class by also extending the 'Game.java' engine interface
@@ -99,6 +103,7 @@ public class Judgement extends Game {
 	private int attackWait = 0; //Modification
 	private int bulletSpawnTime = 0; //Modification
 	private boolean confirmUse = false;
+	private boolean justonce = true;
 	
 	//----------- Menus ----------------
 	//inX/inY - In Game Menu starting location for default choice highlight
@@ -177,6 +182,20 @@ public class Judgement extends Game {
 		mapY = startPosY;
 		scale = 4;
 		playerSpeed = 3;
+		
+		try {
+		Audio.PlayAudio(false);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+		//	Audio.PlayAudio(true);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//****Initialize spriteSheets*********************************************************************
 		extras1 = new SpriteSheet("/textures/extras/extras1.png", 8, 8, 32, scale);
@@ -569,7 +588,7 @@ public class Judgement extends Game {
 				inputWait =	1;
 			}
 			
-			//SpaceBar(action button)
+			//SpaceBar(action button)a
 			if(keySpace) {
 				playerMob.inOutItem();
 				inputWait = 10;
@@ -580,6 +599,8 @@ public class Judgement extends Game {
 		 * Special actions for the Title Menu
 		 *****************************************/
 		if(state == STATE.TITLE && inputWait < 0){
+			    
+			    
 			//For when no initial choice has been made
 			if(option == OPTION.NONE){
 				//S or down arrow(Change selection)
@@ -620,9 +641,11 @@ public class Judgement extends Game {
 					if(option == OPTION.NEWGAME) {
 						
 						
+						
 						state = STATE.GAME;
 						option = OPTION.NONE;
 						setGameState(STATE.GAME);
+					
 					
 					}
 				}//end enter key
@@ -631,6 +654,8 @@ public class Judgement extends Game {
 				
 			}//end new/load option
 		}//end title state
+			
+			
 		
 		
 		/******************************************
