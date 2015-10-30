@@ -222,16 +222,16 @@ public class Judgement extends Game {
 		for(int i = 0; i < mapBase.maps.length; i++){
 			if(mapBase.getMap(i) == null) continue;
 			if(mapBase.getMap(i).mapName() == "city") currentMap = mapBase.getMap(i);
-			if(mapBase.getMap(i).mapName() == "cityO") currentOverlay = mapBase.getMap(i);
+		//	if(mapBase.getMap(i).mapName() == "cityO") currentOverlay = mapBase.getMap(i);
 		}
 		//Add the tiles from the map to be updated each system cycle
 		for(int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++){
 			addTile(currentMap.accessTile(i));
-			addTile(currentOverlay.accessTile(i));
+		//	addTile(currentOverlay.accessTile(i));
 			if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
-			if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+		//	if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
 			currentMap.accessTile(i).getEntity().setX(-300);
-			currentOverlay.accessTile(i).getEntity().setX(-300);
+		//	currentOverlay.accessTile(i).getEntity().setX(-300);
 		}
 		
 		requestFocus(); //Make sure the game is focused on
@@ -248,7 +248,7 @@ public class Judgement extends Game {
 		//Update certain specifics based on certain game states
 		if(state == STATE.TITLE) title.update(option, titleLocation); //Title Menu update
 		if(state == STATE.INGAMEMENU) inMenu.update(option, sectionLoc, playerMob.health()); //In Game Menu update
-		updateData(currentMap, currentOverlay, playerX, playerY); //Update the current file data for saving later
+	//	updateData(currentMap,currentOverlay playerX, playerY); //Update the current file data for saving later
 //System.out.println(frameRate()); //Print the current framerate to the console
 		if(waitOn) wait--;
 	}
@@ -274,7 +274,7 @@ public class Judgement extends Game {
 		if(state == STATE.GAME) {
 			//Render the map, the player, any NPCs or Monsters and the player health or status
 			currentMap.render(this, g2d, mapX, mapY);
-			currentOverlay.render(this, g2d, mapX, mapY);
+			//currentOverlay.render(this, g2d, mapX, mapY);
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
 			if(bulletSpawned == true && bulletSpawnTime < 250) {
 				bullet.renderMob(CENTERX - playerX + 5, CENTERY - playerY + 44);
@@ -447,14 +447,14 @@ public class Judgement extends Game {
 					for(int i = 0; i < mapBase.maps.length; i++){
 						 if(mapBase.getMap(i) == null) continue;
 						 if(tile.event().getMapName() == mapBase.getMap(i).mapName()) currentMap = mapBase.getMap(i);
-						 if(tile.event().getOverlayName() == mapBase.getMap(i).mapName()) currentOverlay = mapBase.getMap(i);
+						// if(tile.event().getOverlayName() == mapBase.getMap(i).mapName()) currentOverlay = mapBase.getMap(i);
 					}
 					//Load in the new maps Tiles and Mobs
 					for(int i = 0; i < currentMap.getWidth() * currentMap.getHeight(); i++){
 						addTile(currentMap.accessTile(i));
-						addTile(currentOverlay.accessTile(i));
+				//		addTile(currentOverlay.accessTile(i));
 						if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
-						if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+				//		if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
 					}
 					//Move the player to the new position
 					playerX = tile.event().getNewX();
