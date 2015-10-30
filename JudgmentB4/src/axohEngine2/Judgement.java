@@ -171,8 +171,8 @@ public class Judgement extends Game {
 		//****Initialize Misc Variables
 		state = STATE.TITLE;
 		option = OPTION.NONE;
-		startPosX = -400; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
-		startPosY = -400;
+		startPosX = 300; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
+		startPosY = 0;
 		mapX = startPosX;
 		mapY = startPosY;
 		scale = 4;
@@ -248,7 +248,7 @@ public class Judgement extends Game {
 		//Update certain specifics based on certain game states
 		if(state == STATE.TITLE) title.update(option, titleLocation); //Title Menu update
 		if(state == STATE.INGAMEMENU) inMenu.update(option, sectionLoc, playerMob.health()); //In Game Menu update
-		updateData(currentMap,currentMap playerX, playerY); //Update the current file data for saving later
+		updateData(currentMap, currentMap, playerX, playerY); //Update the current file data for saving later
 //System.out.println(frameRate()); //Print the current framerate to the console
 		if(waitOn) wait--;
 	}
@@ -383,8 +383,8 @@ public class Judgement extends Game {
 			//Handle simple push back collision
 			if(playerX != 0) playerX -= shiftX;
 			if(playerY != 0) playerY -= shiftY;
-			if(playerX == 0) mapX -= shiftX;
-			if(playerY == 0) mapY -= shiftY;
+			if(playerX == 0) playerX -= shiftX;
+			if(playerY == 0) playerY -= shiftY;
 			
 		}
 	}
@@ -495,25 +495,20 @@ public class Judgement extends Game {
 	 *of the space around the player like that, the X movement is flipped. 
 	 *Which means to move right, you subtract from the X position.
 	 ******************************************************************/
-	void movePlayer(int xa, int ya) {
+	public void movePlayer(int xa, int ya) {
 		if(xa > 0) {
-			if(mapX + xa < currentMap.getMinX() && playerX < playerSpeed && playerX > -playerSpeed) mapX += xa;
-			else playerX += xa; //left +#
+		 playerX += xa; //left +#
 		}
 		if(xa < 0) {
-			if(mapX + xa > currentMap.getMaxX(SCREENWIDTH) && playerX < playerSpeed && playerX > -playerSpeed) mapX += xa;
-			else playerX += xa; //right -#
+		 playerX += xa; //right -#
 		}
 		if(ya > 0) {
-			if(mapY + ya < currentMap.getMinY() && playerY < playerSpeed && playerY > -playerSpeed) mapY += ya;
-			else playerY += ya; //up +#
+			playerY += ya; //up +#
 		}
 		if(ya < 0) {
-			if(mapY + ya > currentMap.getMaxY(SCREENHEIGHT) && playerY < playerSpeed && playerY > -playerSpeed) mapY += ya;
-			else playerY += ya; //down -#
+			 playerY += ya; //down -#
 		}
 	}
-	
 	/**********************************************************
 	 * Main
 	 * 
