@@ -90,8 +90,7 @@ public class SpriteSheet extends Object {
     }
     
     //@return - The image in the array of images cut from the spritesheet to be returned using the sprite number
-    public BufferedImage getSprite(int imageNumber){ 
-    	return sprites[imageNumber]; }
+    public BufferedImage getSprite(int imageNumber){ return sprites[imageNumber]; }
 
     //Gettersfor the many sprites spriteSize and scale
     public int getSpriteSize() { return spriteSize; }

@@ -101,7 +101,7 @@ public class Mob extends AnimatedSprite{
 	public String getName() { return super._name; }
 	public TYPE getType() { return ai; }
 	
-	//Setters for current health, ai, name and speed
+	//Setters for current health, ai, name and 
 	public void setHealth(int health) { this.health = health; }
 	public void setAi(TYPE ai) { this.ai = ai; }
 	public void setName(String name) { super._name = name; }
@@ -144,6 +144,9 @@ public class Mob extends AnimatedSprite{
 		if(ai == TYPE.CHASE) {
 			chase();
 		}
+		//if(ai == TYPE.BULLET) {
+		//	flyingBullet();
+		//}
 		if(hostile && health < 0) {
 			setAlive(false);
 		}
@@ -204,6 +207,13 @@ public class Mob extends AnimatedSprite{
 	private void search() {
 	}
 	
+	//private void flyingBullet() {
+		//if(randomDir == DIRECTION.UP) ya = speed; startAnim();
+		//if(randomDir == DIRECTION.DOWN) ya = -speed; startAnim();
+		//moveBullet(0, 1);
+	//}
+	
+	
 	/***************************************************************
 	 * AI logic used for the chase something ai type
 	 ****************************************************************/
@@ -212,6 +222,25 @@ public class Mob extends AnimatedSprite{
 		
 		}
 	}
+	
+	/***************************************************************
+	 * Method used to change a bullet's position.
+	 * 
+	 * @param xa - Int movement in pixels on the x axis
+	 * @param ya - Int movement in pixels on the y axis
+	 ****************************************************************/
+	public void moveBullet(int xa, int ya) { 
+		if(xa < 0) { //left
+			xx += xa; 
+		} else if(xa > 0) { //right
+			xx += xa; 
+		}
+		if(ya < 0) {  //up
+			yy += ya;
+		} else if(ya > 0) { //down
+			yy += ya;
+		}
+	}	
 	
 	/***************************************************************
 	 * Method used to change a mobs position by the xa and ya parameters.
@@ -476,12 +505,6 @@ public class Mob extends AnimatedSprite{
 		g2d.drawImage(getImage(), x + xx, y + yy, getSpriteSize(), getSpriteSize(), frame);
 		entity.setX(x + xx);
 		entity.setY(y + yy);
-	}
-	
-	public void renderBullet(int x, int y) { //Modifications
-		g2d.drawImage(getImage(), x, y, getSpriteSize(), getSpriteSize(), frame);
-		entity.setX(x);
-		entity.setY(y);
 	}
 	
 	//Used for damaging characters
