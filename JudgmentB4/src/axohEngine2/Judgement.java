@@ -248,7 +248,7 @@ public class Judgement extends Game {
 		//Update certain specifics based on certain game states
 		if(state == STATE.TITLE) title.update(option, titleLocation); //Title Menu update
 		if(state == STATE.INGAMEMENU) inMenu.update(option, sectionLoc, playerMob.health()); //In Game Menu update
-	//	updateData(currentMap,currentOverlay playerX, playerY); //Update the current file data for saving later
+		updateData(currentMap,currentMap playerX, playerY); //Update the current file data for saving later
 //System.out.println(frameRate()); //Print the current framerate to the console
 		if(waitOn) wait--;
 	}
