@@ -37,13 +37,6 @@ public class MapDatabase {
 	SpriteSheet extras2;
 	SpriteSheet mainCharacter;
 	
-	//Maps
-	Map city1;
-	Map city2;
-	Map city3;
-	Map cityO;
-	Map houses;
-	Map housesO;
 	
 	//Tiles - Names are defined in the constructor for better identification
 	Tile d;
@@ -58,13 +51,7 @@ public class MapDatabase {
 	Tile c;
 	
 	//Events
-	Event warpTest;
-	Event warpTest2;
-	Event warpTest3;
-	Event warpTest4;
-	Event warpTest5;
-	Event warp1;
-	Event warp2;
+	Event [] warp  = new Event[200];
 	Event getPotion;
 	Event getMpotion;
 	
@@ -77,6 +64,7 @@ public class MapDatabase {
 	
 	//Array of maps
 	public Map[] maps;
+	public Tile[][] mapTiles = new Tile[200][169];
 	
 	
 	//Julian changes to allow reading from a file
@@ -118,45 +106,56 @@ public class MapDatabase {
 		
 		
 		//Creates array of tiles for each map
-		Tile[] city1Tiles = new Tile[169];
-		Tile[] city2Tiles = new Tile[169];
-		Tile[] city3Tiles = new Tile[169];
-
+		
+		
+		
+	//	Tile[] map0Tiles = new Tile[169];
+	//	Tile[] map1Tiles = new Tile[169];
+	//	Tile[] map2Tiles = new Tile[169];
+			
 		
 		//testing for random map placement
-		Random rn = new Random();
+		//Random rn = new Random();
 		//for(int x=0; x<100 ;x++)
 		//System.out.println(rn.nextInt(3)+1);
 		
 		
 		//fills the arrays with tiles based off of text files.
-
 		
 		//mapFromFile("map"+(rn.nextInt(3)+1)+".txt", city1Tiles);
 /// Commented out for now, but it looks for a random text file between numbers 1 and 3,		
 		
-		mapFromFile("map1.txt", city1Tiles);
-		mapFromFile("map2.txt", city2Tiles);
-		mapFromFile("map3.txt", city3Tiles);
+		int x;
 		
+		for (x=1; x<11; x++){
+			
+			if (x==10)
+			{
+				mapFromFile("mapEnd.txt", mapTiles[x]);
+				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map5");
+				
+			}
+			
+			else{
+				Random rn = new Random();
+				mapFromFile("map"+(rn.nextInt(10))+".txt", mapTiles[x]);
+				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map");
+				warp[x] = new Event("ToNext", TYPE.WARP);
+				warp[x] .setWarp(16, -190);
+				maps[x].accessTile(8).addEvent(warp[x]);
+			}
+		}
 		
+	//Starting zone initialization	
 		
-		//Put the maps together and add them to the array of possible maps
+		mapFromFile("mapStart.txt", mapTiles[0]);
+		maps[0] =  new Map(frame, g2d, mapTiles[0], 13, 13, "map5");
+		warp[0] = new Event("ToNext", TYPE.WARP);
+		warp[0] .setWarp(16, -190);
+		maps[0].accessTile(8).addEvent(warp[0]);
 		
-		city1 = new Map(frame, g2d, city1Tiles, 13, 13, "city");
-		city2 = new Map(frame, g2d, city2Tiles, 13, 13, "city2");
-		city3 = new Map(frame, g2d, city3Tiles, 13, 13, "city3");
+
 		
-		maps[0] = city1;
-		maps[1] = city2;
-		maps[2] = city3;
-		
-	//	cityO = new Map(frame, g2d, cityOTiles, 40, 40, "cityO");
-	//	maps[1] = cityO;
-	//	houses = new Map(frame, g2d, houseTiles, 6, 6, "houses");
-	//	maps[2] = houses;
-	//	housesO = new Map(frame, g2d, houseOTiles, 6, 6, "housesO");
-	//	maps[3] = housesO;
 		
 		//Put together all items (Dont forget to add these to the count and setup methods in inGameMenu.java)
 	//	potion = new Item(frame, g2d, extras2, 2, "Potion", false);
@@ -164,29 +163,6 @@ public class MapDatabase {
 	//	mpotion = new Item(frame, g2d, extras2, 2, "Mega Potion", false);
 	//	potion.setHealItem(50, false, "");
 		
-		//Put together all events
-		//Warping events
-			warpTest = new Event("To2", TYPE.WARP);
-			warpTest.setWarp("city2", "city2", 0, -190);
-			
-			warpTest2 = new Event("To1", TYPE.WARP);
-			warpTest2.setWarp("city", "city", 0, +460);
-			
-			warpTest3 = new Event("To3", TYPE.WARP);
-			warpTest3.setWarp("city3", "city", 0, +460);
-			
-			warpTest4 = new Event("To1", TYPE.WARP);
-			warpTest4.setWarp("city", "city", 0, -190);
-			
-			city1.accessTile(8).addEvent(warpTest);
-			city1.accessTile(164).addEvent(warpTest3);
-			city2.accessTile(164).addEvent(warpTest2);
-			city3.accessTile(8).addEvent(warpTest4);
-			
-	//	warp1 = new Event("fromHouse", TYPE.WARP);
-	//	warp1.setWarp("city", "cityO", 200, -50);
-	//	warp2 = new Event("toHouse", TYPE.WARP);
-	//	warp2.setWarp("houses", "housesO", 620, 250);
 		
 		//Item events
 	//	getPotion = new Event("getPotion", TYPE.ITEM);
