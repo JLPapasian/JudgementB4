@@ -56,6 +56,7 @@ public class Judgement extends Game {
 	static int SCREENHEIGHT = 900;
 	static int CENTERX = SCREENWIDTH / 2;
 	static int CENTERY = SCREENHEIGHT / 2;
+
 	
 	//--------- Miscelaneous ---------
 	//booleans - A way of detecting a pushed key in game
@@ -65,7 +66,6 @@ public class Judgement extends Game {
 	//Fonts - Variouse font sizes in the Arial style for different in game text
 	boolean keyLeft, keyRight, keyUp, keyDown, keyInventoryOpen, keyInventoryClose, keyAction, keyBack, keyEnter, keySpace = false;
 	boolean keyInventoryDown=false;
-	boolean arrow, bulletSpawned; //MODIFICATION
 	
 	Random random = new Random();
 	STATE state; 
@@ -88,11 +88,6 @@ public class Judgement extends Game {
 	private int startPosX;
 	private int startPosY;
 	private int playerSpeed;
-	
-	private int bulletX;
-	private int bulletY;
-	private int bulletXDelta;
-	private int bulletYDelta;
 	
 	
 	//----------- Map and input --------
@@ -155,6 +150,24 @@ public class Judgement extends Game {
 	Mob randomNPC;
 	Mob bullet; //Modification
 	
+	
+	//Projectile Variables
+	boolean arrow, bulletSpawned; //MODIFICATION
+	private int bulletLifeSpan=50;
+	private int bulletX;
+	private int bulletY;
+	private int bulletXDelta;
+	private int bulletYDelta;
+	private int bulletSpeed; //not used yet. call this under the control sections
+	
+	//Audio variables
+	public static AudioStream titleMusic;
+	private String menuBlipSnd = "blip.wav";
+	private String startGameSnd = "startGame.wav";
+	private String titleSnd = "2.au";
+	private String shootSnd = "shoot.wav";
+	
+	
 	/*********************************************************************** 
 	 * Constructor
 	 * 
@@ -189,19 +202,11 @@ public class Judgement extends Game {
 		scale = 4;
 		playerSpeed = 3;
 		
-		try {
-		Audio.PlayAudio(false);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Audio.StartTitleMusic("2.au");
 		
-		try {
-		//	Audio.PlayAudio(true);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		
+	
 		
 		//****Initialize spriteSheets*********************************************************************
 		extras1 = new SpriteSheet("/textures/extras/extras1.png", 8, 8, 32, scale);
@@ -234,14 +239,14 @@ public class Judgement extends Game {
 		playerMob.getAttack("sword").addAttackAnim(20, 28, 12, 4, 3, 6);
 		playerMob.getAttack("sword").addInOutAnim(16, 24, 8, 0, 1, 10);
 		playerMob.setCurrentAttack("sword"); //Starting attack
-		playerMob.setHealth(49); //If you change the starting max health, dont forget to change it in inGameMenu.java max health also
+		playerMob.setHealth(20); //If you change the starting max health, dont forget to change it in inGameMenu.java max health also
 		sprites().add(playerMob);
 		
 		//Projectile
 		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);
+		sprites().add(bullet);
 		
 		
-		//*****Initialize and setup first Map******************************************************************
 		mapBase = new MapDatabase(this, graphics(), scale);
 		//Get Map from the database
 	
@@ -256,6 +261,9 @@ public class Judgement extends Game {
 			currentMap.accessTile(i).getEntity().setX(-300);
 		//	currentOverlay.accessTile(i).getEntity().setX(-300);
 		}
+		
+		playerX=startPosX;
+		playerY=startPosY;
 		
 		requestFocus(); //Make sure the game is focused on
 		start(); //Start the game loop
@@ -300,21 +308,32 @@ public class Judgement extends Game {
 			//currentOverlay.render(this, g2d, mapX, mapY);
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
 			
-			if(bulletSpawned == true && bulletSpawnTime < 250) {
+			Audio.StopTitleMusic(); //Stops the music clip
+			
+			if(bulletSpawned == true && bulletSpawnTime < bulletLifeSpan+1) {
 				if(bulletSpawnTime==0)
 				{
 					bulletX=CENTERX - playerX+50;
 					bulletY=CENTERY - playerY+50;
 				}
-				
+				bulletX=bulletX-bulletXDelta; 
+				bulletY=bulletY-bulletYDelta;
+								
 				bullet.renderMob(bulletX, bulletY);
 				//bullet.moveBullet(-1, 0); //commented out temporarily for testing.
 				//It seems the issue with the bullet not resetting was caused by the moveBullet function
 				
-				bulletX=bulletX-bulletXDelta; 
-				bulletY=bulletY-bulletYDelta;
-				
 				bulletSpawnTime++;
+			}
+			
+			if(bulletSpawnTime == bulletLifeSpan) {
+				//bullet.setLoc(playerX, playerY); Doesn't work
+				bulletSpawned = false;
+				bulletSpawnTime = 0;
+				System.out.println("Reset");
+				bulletX=200000;
+				bulletY=200000;
+				bullet.renderMob(bulletX, bulletY);
 			}
 			
 			
@@ -421,6 +440,11 @@ public class Judgement extends Game {
 				playerMob.damageMob(1);
 			}
 			
+			if(spr1.spriteType() == TYPE.BULLET && state == STATE.GAME){
+			
+				
+			}
+			
 			//This piece of code is commented out because I still need the capability of getting a tile from an xand y position
 			/*if(((Mob) spr1).attacking() && currentOverlay.getFrontTile((Mob) spr1, playerX, playerY, CENTERX, CENTERY).getBounds().intersects(spr2.getBounds())){
 				((Mob) spr2).takeDamage(25);
@@ -460,6 +484,15 @@ public class Judgement extends Game {
 		double smallestOverlap = Double.MAX_VALUE; 
 		double shiftX = 0;
 		double shiftY = 0;
+		
+		if(spr.spriteType() == TYPE.BULLET) {
+			
+			System.out.println("bullet COllision");
+			bulletX=200000;
+			bulletY=200000;
+					
+		}
+		else{
 
 		if(leftOverlap < smallestOverlap) { //Left
 			smallestOverlap = leftOverlap;
@@ -481,6 +514,9 @@ public class Judgement extends Game {
 			shiftX = 0;
 			shiftY = botOverlap;
 		}
+		}
+	
+		
 		
 		//Deal with a tiles possible event property
 		if(tile.hasEvent()){
@@ -490,6 +526,7 @@ public class Judgement extends Game {
 					tiles().clear();
 					sprites().clear();
 					sprites().add(playerMob);
+					sprites().add(bullet);
 					//Get the new map
 					
 					currentMapIndex=currentMapIndex+1;
@@ -646,14 +683,16 @@ public class Judgement extends Game {
 					titleX -= 105;
 					titleY += 100;
 					titleLocation++;
-					inputWait = 5;
+					inputWait = 1;
+					Audio.PlaySound(menuBlipSnd);
 				}
 				//W or up arrow(Chnage selection
 				if(keyUp && titleLocation > 0){
 					titleX += 105;
 					titleY -= 100;
 					titleLocation--;
-					inputWait = 5;
+					inputWait = 1;
+					Audio.PlaySound(menuBlipSnd); //plays the blip sound when moving between options
 				}
 				//Enter key(Make a choice)
 				if(keyEnter) {
@@ -662,6 +701,7 @@ public class Judgement extends Game {
 						titleLocation = 0;
 						inputWait = 10;
 						keyEnter = false;
+						Audio.PlaySound(startGameSnd); //plays the start game sound
 					}
 					if(titleLocation == 1){
 						System.exit(0);
@@ -708,7 +748,8 @@ public class Judgement extends Game {
 					if(inLocation > 0) {
 						inY -= 108;
 						inLocation--;
-						inputWait = 10;
+						inputWait = 3;
+						Audio.PlaySound(menuBlipSnd); //plays the blip sound when moving between options
 					}
 				}
 				//S or down arrow(move selection)
@@ -716,7 +757,8 @@ public class Judgement extends Game {
 					if(inLocation < 3) {
 						inY += 108;
 						inLocation++;
-						inputWait = 10;
+						inputWait = 3;
+						Audio.PlaySound(menuBlipSnd); //plays the blip sound when moving between options
 					}
 				}
 				//Enter key(Make a choice)
@@ -740,6 +782,7 @@ public class Judgement extends Game {
 					if(inLocation == 3){
 						inputWait = 1;
 						state = STATE.TITLE;
+						Audio.StartTitleMusic(titleSnd);
 					}
 					keyEnter = false;
 				}
@@ -822,12 +865,6 @@ public class Judgement extends Game {
 		}
 		inputWait--;
 		attackWait--; //Modification
-		if(bulletSpawnTime == 50) {
-			//bullet.setLoc(playerX, playerY); Doesn't work
-			bulletSpawned = false;
-			bulletSpawnTime = 0;
-			System.out.println("Reset");
-		}
 	}
 	
 	/**
@@ -961,24 +998,28 @@ public class Judgement extends Game {
         	if(arrow == true) {
         		arrow = false;
 				bulletSpawned = true;
+				Audio.PlaySound(shootSnd);
         	}
             break;
         } case KeyEvent.VK_RIGHT: {
         	if(arrow == true) {
         		arrow = false;
 				bulletSpawned = true;
+				Audio.PlaySound(shootSnd);
         	}
             break;
         } case KeyEvent.VK_UP: {
         	if(arrow == true) {
         		arrow = false;
 				bulletSpawned = true;
+				Audio.PlaySound(shootSnd);
         	}
             break;
         } case KeyEvent.VK_DOWN: {
         	if(arrow == true) {
         		arrow = false;
 				bulletSpawned = true;
+				Audio.PlaySound(shootSnd);
         	}
             break;
         }						
@@ -993,6 +1034,7 @@ public class Judgement extends Game {
 	    case KeyEvent.VK_ENTER:
 	    	keyEnter = false;
 	    	break;
+	    	
 	    case KeyEvent.VK_BACK_SPACE:
 	    	keyBack = false;
 	    	break;
