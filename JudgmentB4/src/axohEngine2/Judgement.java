@@ -66,7 +66,6 @@ public class Judgement extends Game {
 	//Fonts - Variouse font sizes in the Arial style for different in game text
 	boolean keyLeft, keyRight, keyUp, keyDown, keyInventoryOpen, keyInventoryClose, keyAction, keyBack, keyEnter, keySpace = false;
 	boolean keyInventoryDown=false;
-	boolean arrow, bulletSpawned; //MODIFICATION
 	
 	Random random = new Random();
 	STATE state; 
@@ -89,11 +88,6 @@ public class Judgement extends Game {
 	private int startPosX;
 	private int startPosY;
 	private int playerSpeed;
-	
-	private int bulletX;
-	private int bulletY;
-	private int bulletXDelta;
-	private int bulletYDelta;
 	
 	
 	//----------- Map and input --------
@@ -155,6 +149,16 @@ public class Judgement extends Game {
 	Mob playerMob;
 	Mob randomNPC;
 	Mob bullet; //Modification
+	
+	
+	//Projectile Variables
+	boolean arrow, bulletSpawned; //MODIFICATION
+	private int bulletLifeSpan=50;
+	private int bulletX;
+	private int bulletY;
+	private int bulletXDelta;
+	private int bulletYDelta;
+	private int bulletSpeed; //not used yet. call this under the control sections
 	
 	//Audio variables
 	public static AudioStream titleMusic;
@@ -306,26 +310,30 @@ public class Judgement extends Game {
 			
 			Audio.StopTitleMusic(); //Stops the music clip
 			
-			if(bulletSpawned == true && bulletSpawnTime < 250) {
+			if(bulletSpawned == true && bulletSpawnTime < bulletLifeSpan+1) {
 				if(bulletSpawnTime==0)
 				{
 					bulletX=CENTERX - playerX+50;
 					bulletY=CENTERY - playerY+50;
 				}
-				
+				bulletX=bulletX-bulletXDelta; 
+				bulletY=bulletY-bulletYDelta;
+								
 				bullet.renderMob(bulletX, bulletY);
 				//bullet.moveBullet(-1, 0); //commented out temporarily for testing.
 				//It seems the issue with the bullet not resetting was caused by the moveBullet function
 				
-				bulletX=bulletX-bulletXDelta; 
-				bulletY=bulletY-bulletYDelta;
-				
 				bulletSpawnTime++;
 			}
-			if(bulletSpawnTime==250)
-			{
+			
+			if(bulletSpawnTime == bulletLifeSpan) {
+				//bullet.setLoc(playerX, playerY); Doesn't work
+				bulletSpawned = false;
+				bulletSpawnTime = 0;
+				System.out.println("Reset");
 				bulletX=200000;
 				bulletY=200000;
+				bullet.renderMob(bulletX, bulletY);
 			}
 			
 			
@@ -857,12 +865,6 @@ public class Judgement extends Game {
 		}
 		inputWait--;
 		attackWait--; //Modification
-		if(bulletSpawnTime == 50) {
-			//bullet.setLoc(playerX, playerY); Doesn't work
-			bulletSpawned = false;
-			bulletSpawnTime = 0;
-			System.out.println("Reset");
-		}
 	}
 	
 	/**
