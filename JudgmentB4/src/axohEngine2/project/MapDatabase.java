@@ -15,6 +15,10 @@ package axohEngine2.project;
 
 //Imports
 import java.awt.Graphics2D;
+import java.io.File;  //imported for reading from file
+import java.io.FileNotFoundException;
+import java.util.Random;
+import java.util.Scanner; //imported for reading from file
 
 import javax.swing.JFrame;
 
@@ -33,11 +37,6 @@ public class MapDatabase {
 	SpriteSheet extras2;
 	SpriteSheet mainCharacter;
 	
-	//Maps
-	Map city;
-	Map cityO;
-	Map houses;
-	Map housesO;
 	
 	//Tiles - Names are defined in the constructor for better identification
 	Tile d;
@@ -52,8 +51,7 @@ public class MapDatabase {
 	Tile c;
 	
 	//Events
-	Event warp1;
-	Event warp2;
+	Event [] warp  = new Event[200];
 	Event getPotion;
 	Event getMpotion;
 	
@@ -66,6 +64,13 @@ public class MapDatabase {
 	
 	//Array of maps
 	public Map[] maps;
+	public Tile[][] mapTiles = new Tile[200][169];
+	
+	
+	//Julian changes to allow reading from a file
+	private Scanner fileInput;			//Used to read in the maze from a text file
+	private int cur;
+	private String nextTile;
 	
 	/****************************************************************
 	 * Constructor
@@ -99,117 +104,58 @@ public class MapDatabase {
 		c = new Tile(frame, g2d, "chest", extras2, 0, true);
 		
 		
-		//Set the tile blueprints in an array for the Map
-		Tile[] cityTiles = {b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b,
-						    b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, r, b, b,
-						    b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b,
-						    b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b};
-
-		Tile[] cityOTiles = {e, e, h, e, e, e, e, h, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, d, e, e, e, e, d, e, e, e, c, c, c, c, c, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, c, e, ro, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, ro, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, c, c, c, c, ro, ro, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e,
-							 e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e, e};
-
 		
-
-
-
-		Tile[] houseTiles = {hf, hf, hf, hf, hf, hf,
-							 hf, hf, hf, hf, hf, hf,
-							 hf, hf, hf, hf, hf, hf,
-							 hf, hf, hf, hf, hf, hf,
-							 hf, hf, hf, hf, hf, hf,
-							 hf, hf, hf, hf, hf, hf};
-		
-		Tile[] houseOTiles = {hf, hf, hf, hf, hf, hf,
-						 	  hf, hf, hf, hf, hf, hf,
-						 	  hf, hf, hf, hf, hf, hf,
-						 	  hf, hf, hf, hf, hf, hf,
-						 	  hf, hf, hf, hf, hf, hf,
-						 	  hf, hf, hf, hf, hf, hf};	
+		//Creates array of tiles for each map
 		
 		
-		//Put the maps together and add them to the array of possible maps
-		city = new Map(frame, g2d, cityTiles, 40, 40, "city");
-		maps[0] = city;
-		cityO = new Map(frame, g2d, cityOTiles, 40, 40, "cityO");
-		maps[1] = cityO;
-		houses = new Map(frame, g2d, houseTiles, 6, 6, "houses");
-		maps[2] = houses;
-		housesO = new Map(frame, g2d, houseOTiles, 6, 6, "housesO");
-		maps[3] = housesO;
+		
+	//	Tile[] map0Tiles = new Tile[169];
+	//	Tile[] map1Tiles = new Tile[169];
+	//	Tile[] map2Tiles = new Tile[169];
+			
+		
+		//testing for random map placement
+		//Random rn = new Random();
+		//for(int x=0; x<100 ;x++)
+		//System.out.println(rn.nextInt(3)+1);
+		
+		
+		//fills the arrays with tiles based off of text files.
+		
+		//mapFromFile("map"+(rn.nextInt(3)+1)+".txt", city1Tiles);
+/// Commented out for now, but it looks for a random text file between numbers 1 and 3,		
+		
+		int x;
+		
+		for (x=1; x<11; x++){
+			
+			if (x==10)
+			{
+				mapFromFile("mapEnd.txt", mapTiles[x]);
+				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map5");
+				
+			}
+			
+			else{
+				Random rn = new Random();
+				mapFromFile("map"+(rn.nextInt(10))+".txt", mapTiles[x]);
+				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map");
+				warp[x] = new Event("ToNext", TYPE.WARP);
+				warp[x] .setWarp(16, -190);
+				maps[x].accessTile(8).addEvent(warp[x]);
+			}
+		}
+		
+	//Starting zone initialization	
+		
+		mapFromFile("mapStart.txt", mapTiles[0]);
+		maps[0] =  new Map(frame, g2d, mapTiles[0], 13, 13, "map5");
+		warp[0] = new Event("ToNext", TYPE.WARP);
+		warp[0] .setWarp(16, -190);
+		maps[0].accessTile(8).addEvent(warp[0]);
+		
+
+		
 		
 		//Put together all items (Dont forget to add these to the count and setup methods in inGameMenu.java)
 	//	potion = new Item(frame, g2d, extras2, 2, "Potion", false);
@@ -217,12 +163,6 @@ public class MapDatabase {
 	//	mpotion = new Item(frame, g2d, extras2, 2, "Mega Potion", false);
 	//	potion.setHealItem(50, false, "");
 		
-		//Put together all events
-		//Warping events
-	//	warp1 = new Event("fromHouse", TYPE.WARP);
-	//	warp1.setWarp("city", "cityO", 200, -50);
-	//	warp2 = new Event("toHouse", TYPE.WARP);
-	//	warp2.setWarp("houses", "housesO", 620, 250);
 		
 		//Item events
 	//	getPotion = new Event("getPotion", TYPE.ITEM);
@@ -231,7 +171,7 @@ public class MapDatabase {
 	//	getMpotion.setItem(mpotion);
 		
 		//Add the events to their specific tiles and maps
-		houses.accessTile(5).addEvent(warp1);
+		//houses.accessTile(5).addEvent(warp1);
 		//cityO.accessTile(92).addEvent(getPotion);
 		//cityO.accessTile(242).addEvent(getPotion);
 		//cityO.accessTile(328).addEvent(getPotion);
@@ -241,7 +181,7 @@ public class MapDatabase {
 		//cityO.accessTile(93).addEvent(getMpotion);
 		//cityO.accessTile(94).addEvent(getMpotion);
 		//cityO.accessTile(95).addEvent(getMpotion);
-		cityO.accessTile(96).addEvent(getMpotion);
+		//cityO.accessTile(96).addEvent(getMpotion);
 		
 		//Set up Monsters and NPCs
 	//	npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.RANDOMPATH, "npc", false);
@@ -250,8 +190,51 @@ public class MapDatabase {
 	//	npc.setHealth(60);
 		
 		//Add the mobs to their tile home
-	//	cityO.accessTile(98).addMob(npc);
+	//	city1.accessTile(20).addMob(npc);
 	}
+	
+	
+	//New method
+	//Points to a filename (by it's name in the form of a string) 
+	//Then iterates through the text file, reading each character and...
+	// places it into an array of tiles)
+	public void mapFromFile(String fileName, Tile[] map)
+	{
+		try{  //A try/catch block is needed in case the file it is looking for is not found.
+			
+			File currentMap = new File ("maps/"+fileName); //Uses the string to point to the actual file (/maps is where the files are held)
+			fileInput = new Scanner(currentMap); //creates a scanner which will be used to iterate through the file
+
+					for (cur = 0; cur < 169; cur++) { //currently, all our maps are a fixed size, 13 x 13.. 169 tiles total
+						nextTile = fileInput.next(); //grabs the next character
+						
+						//Uses a switch statement to decide what tile type will be placed 
+						 switch (nextTile) {
+				         case "r":
+				        	 map[cur] = r ;
+				             break;
+				         case "b":
+				        	 map[cur] = b ;
+				             break;
+				         case "f":
+				        	 map[cur] = f ;
+				             break;
+				         case "g":
+				        	 map[cur] = g ;
+				             break;
+				         //other tiles can be added to this statement as neccesary
+				 }
+			}
+
+			fileInput.close();				//Closes the file.
+		
+		}
+		catch (FileNotFoundException e) { //Prints out an error if the file can't be found
+			System.out.println(e);
+			System.exit(1); // IO error; exit program
+		} // end catch
+	}
+	
 	
 	/************************************************************
 	 * Get a map back  based on its index in the array of maps
