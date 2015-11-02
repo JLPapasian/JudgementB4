@@ -55,9 +55,9 @@ public class Event {
 	 * @param x - player x Int
 	 * @param y - player y Int
 	 *************************************************************/
-	public void setWarp(String mapName, String overlayName, int x, int y) {
-		_mapName = mapName;
-		_overlayName = overlayName;
+	public void setWarp(int x, int y) {
+		//_mapName = mapName;
+		//_overlayName = overlayName;
 		newX = x;
 		newY = y;
 	}

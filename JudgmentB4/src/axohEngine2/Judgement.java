@@ -108,7 +108,8 @@ public class Judgement extends Game {
 	private int attackWait = 0; //Modification
 	private int bulletSpawnTime = 0; //Modification
 	private boolean confirmUse = false;
-	private boolean justonce = true;
+	
+	private int currentMapIndex =0;
 	
 	//----------- Menus ----------------
 	//inX/inY - In Game Menu starting location for default choice highlight
@@ -243,11 +244,9 @@ public class Judgement extends Game {
 		//*****Initialize and setup first Map******************************************************************
 		mapBase = new MapDatabase(this, graphics(), scale);
 		//Get Map from the database
-		for(int i = 0; i < mapBase.maps.length; i++){
-			if(mapBase.getMap(i) == null) continue;
-			if(mapBase.getMap(i).mapName() == "city") currentMap = mapBase.getMap(i);
-		//	if(mapBase.getMap(i).mapName() == "cityO") currentOverlay = mapBase.getMap(i);
-		}
+	
+			currentMap = mapBase.getMap(currentMapIndex);
+
 		//Add the tiles from the map to be updated each system cycle
 		for(int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++){
 			addTile(currentMap.accessTile(i));
@@ -492,11 +491,21 @@ public class Judgement extends Game {
 					sprites().clear();
 					sprites().add(playerMob);
 					//Get the new map
+					
+					currentMapIndex=currentMapIndex+1;
+					currentMap = mapBase.getMap(currentMapIndex);
+					
+					
+					/*
 					for(int i = 0; i < mapBase.maps.length; i++){
 						 if(mapBase.getMap(i) == null) continue;
 						 if(tile.event().getMapName() == mapBase.getMap(i).mapName()) currentMap = mapBase.getMap(i);
 						// if(tile.event().getOverlayName() == mapBase.getMap(i).mapName()) currentOverlay = mapBase.getMap(i);
 					}
+					*/
+					
+					
+					
 					//Load in the new maps Tiles and Mobs
 					for(int i = 0; i < currentMap.getWidth() * currentMap.getHeight(); i++){
 						addTile(currentMap.accessTile(i));
@@ -896,6 +905,7 @@ public class Judgement extends Game {
 		    	}
 	            break;
 		    } case KeyEvent.VK_UP: {
+		    	System.out.println(currentMapIndex);
 		    	if(attackWait <= 0 && bulletSpawned == false) {
 		    		attackWait = 30;
 		    		arrow = true;

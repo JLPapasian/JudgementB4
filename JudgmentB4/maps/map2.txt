@@ -1,11 +1,11 @@
-b b b b b b b b b b b b b 
-b b r r r r r r r r r b b
-b b r b r b r r r r r b b
-b b r b r b r r r r r b b
-b b r b r b r r r r r b b
-b b r b r b r r r r r b b
+b b b b b b b b r b b b b
 b b r r r r r r r r r b b
 b b r r r r r r r r r b b
+b b r f r r r f r r r b b
+b b r r r f r r r r r b b
+b b r r f r f r r r r b b
+b b r r r f r r r r r b b
+b b r f r r r f r r r b b
 b b r r r r r r r r r b b
 b b r r r r r r r r r b b
 b b r r r r r r r r r b b
