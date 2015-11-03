@@ -61,7 +61,7 @@ abstract class Game extends JFrame implements Runnable, KeyListener, MouseListen
 	
 	//Set up graphics, synchronizing, screenwidth and height
 	private transient BufferedImage backBuffer;
-	private transient Graphics2D g2d;
+	protected transient Graphics2D g2d;
 	private transient Toolkit tk;
 	private int screenWidth, screenHeight;
 	

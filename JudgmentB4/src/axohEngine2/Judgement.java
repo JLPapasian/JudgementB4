@@ -341,10 +341,12 @@ public class Judgement extends Game {
 				bulletX=200000;
 				bulletY=200000;
 				bullet.renderMob(bulletX, bulletY);
+				g2d.drawImage(healthBarOutline.getImage(), 1000, 700, 300, -600, this.rootPane);
+				g2d.drawImage(healthBar.getImage(), 1000, 700, 300, -playerMob.getHealth()*30, this.rootPane);
 			}
 			
-			g2d.drawImage(healthBarOutline.getImage(), 1000, 100, 300, 1000, this.rootPane);
-			g2d.drawImage(healthBar.getImage(), 1000, 100, 300, 50*(playerMob.getHealth()), this.rootPane);
+			g2d.drawImage(healthBarOutline.getImage(), 1000, 700, 300, -600, this.rootPane);
+			g2d.drawImage(healthBar.getImage(), 1000, 700, 300, -playerMob.getHealth()*30, this.rootPane);
 
 			
 			//g2d.setColor(Color.GREEN);
@@ -777,6 +779,7 @@ public class Judgement extends Game {
 					if(inLocation == 3){
 						reset();
 						inputWait = 1;
+						option = OPTION.NONE;
 						state = STATE.TITLE;
 					}
 					keyEnter = false;
