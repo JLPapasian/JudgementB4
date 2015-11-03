@@ -23,53 +23,24 @@ import javax.swing.JFrame;
 import axohEngine2.project.TYPE;
 
 public class Bullet extends AnimatedSprite{
-	
-	/*************
-	 * Variables
-	 *************/
-	//random - Use to obtain a randomly generated number
-	//attacks - A list of attacks that can be used by a Mob
-	//hostile - Can the mob attack the player?
-	//health - HP
-	/*ai - An enum which sets the ai of an npc, that ai needs to be written in a method and then added as
-	   a TYPE in the TYPE.java class before it can be used. Right now only random ai is possible, and PLAYER.*/
-	//xx and yy - Variables used as a starting position from a spawn point
-	//speed - How fast the mob can move(Default 2 pixels per update)
-	//attacking - A possible state the mob could be in, for many kinds of checks
-	//takenOut - Boolean to see if the mob has it's weapon out
-	//currentAttack - The currently selected attack to use from the list of Mob attacks
-	private Random random = new Random();
-	private LinkedList<Attack> attacks;
-	private boolean hostile;
+
+
 	private int health;
 	private TYPE ai;
 	private int xx;
 	private int yy;
-	private int speed = 2;
-	private boolean attacking;
-	private boolean takenOut = false;
-	private Attack currentAttack;
-
-	//Four variable booleans depicting the last direction the mob was moving(This could be phased out of the system)
-	private boolean wasRight = false;
-	private boolean wasLeft = false;
-	private boolean wasUp = false;
-	private boolean wasDown = false;
-
-	//moveDir - Direction the mob was moving
-	//direction - The direction the Mob is facing
-	//randomDir - The random choice of a direction used in random movements
-	private DIRECTION moveDir;
-	private DIRECTION direction;
-	private DIRECTION randomDir;
-	
-	//Wait timers
-	private boolean waitOn = false;
-	private int wait;
 	
 	//Graphics and Window objects the mob needs for display
 	private Graphics2D g2d;
 	private JFrame frame;
+	
+	
+	private int bulletX;
+	private int bulletY;
+	private int bulletXDelta;
+	private int bulletYDelta;
+	private int bulletSpeed =7; 
+	public int bulletSpawnTime = 0;
 	
 	/************************************************************************
 	 * Constructor
@@ -84,12 +55,10 @@ public class Bullet extends AnimatedSprite{
 	 *************************************************************************/
 	public Bullet(JFrame frame, Graphics2D g2d, SpriteSheet sheet, int spriteNumber, TYPE ai, String name, boolean hostility) {
 		super(frame, g2d, sheet, spriteNumber, name);
-		attacks = new LinkedList<Attack>();
 		this.frame = frame;
 		this.g2d = g2d;
 		this.ai = ai;
 		
-		hostile = hostility;
 		setName(name);
 		health = 0;
 		setSolid(true);
@@ -105,7 +74,6 @@ public class Bullet extends AnimatedSprite{
 	public void setHealth(int health) { this.health = health; }
 	public void setAi(TYPE ai) { this.ai = ai; }
 	public void setName(String name) { super._name = name; }
-	public void setSpeed(int speed) { this.speed = speed; }
 
 	
 	/***************************************************************
@@ -115,16 +83,8 @@ public class Bullet extends AnimatedSprite{
 	 * @param ya - Int movement in pixels on the y axis
 	 ****************************************************************/
 	public void moveBullet(int xa, int ya) { 
-		if(xa < 0) { //left
-			xx += xa; 
-		} else if(xa > 0) { //right
-			xx += xa; 
-		}
-		if(ya < 0) {  //up
-			yy += ya;
-		} else if(ya > 0) { //down
-			yy += ya;
-		}
+			bulletX -= xa; 
+			bulletY -= ya;
 	}	
 	
 	
@@ -149,10 +109,22 @@ public class Bullet extends AnimatedSprite{
 	 ***********************************************/
 	public void renderMob(int x, int y) {
 		g2d.drawImage(getImage(), x + xx, y + yy, getSpriteSize(), getSpriteSize(), frame);
-		entity.setX(x + xx);
-		entity.setY(y + yy);
+		entity.setX(x);
+		entity.setY(y);
 	}
 	
+	public void setLocation(int x, int y){
+		bulletX=x;
+		bulletY=y;
+	}
+	
+	public int getX(){
+		return bulletX;
+	}
+	public int getY(){
+		return bulletY;
+		}
+			
 	//Used for damaging characters
 	public void damageMob(int damage)
 	{

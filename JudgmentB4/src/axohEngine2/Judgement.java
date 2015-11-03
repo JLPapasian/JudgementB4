@@ -343,8 +343,6 @@ public class Judgement extends Game {
 				bulletX=200000;
 				bulletY=200000;
 				bullet.renderMob(bulletX, bulletY);
-				g2d.drawImage(healthBarOutline.getImage(), 1000, 700, 300, -600, this.rootPane);
-				g2d.drawImage(healthBar.getImage(), 1000, 700, 300, -playerMob.getHealth()*30, this.rootPane);
 			}
 			
 			g2d.drawImage(healthBarOutline.getImage(), 1000, 700, 300, -600, this.rootPane);
@@ -359,7 +357,7 @@ public class Judgement extends Game {
 			
 			
 			//NPC IS CURRENTLY REMOVED
-			//g2d.drawString("NPC health: " + currentOverlay.accessTile(98).mob().health(), CENTERX + 200, CENTERY - 350);
+			//g2d.drawString("NPC health: " + currentMap.accessTile(16).mob().health(), CENTERX + 200, CENTERY - 350);
 			
 			
 			
@@ -446,16 +444,14 @@ public class Judgement extends Game {
 
 		//Handling very specific collisions
 		if(spr1.spriteType() == TYPE.PLAYER && state == STATE.GAME){
-			if(spr2 instanceof Mob){
+			
+			if(spr2.spriteType()==TYPE.ENEMY){
 				((Mob) spr2).stop();
 				//added player damage
-				playerMob.damageMob(1);
-			}
+				//playerMob.damageMob(1);
 			
-			if(spr1.spriteType() == TYPE.BULLET && state == STATE.GAME){
 			
-				
-			}
+			
 			
 			//This piece of code is commented out because I still need the capability of getting a tile from an xand y position
 			/*if(((Mob) spr1).attacking() && currentOverlay.getFrontTile((Mob) spr1, playerX, playerY, CENTERX, CENTERY).getBounds().intersects(spr2.getBounds())){
@@ -469,8 +465,8 @@ public class Judgement extends Game {
 			if(playerX == 0) playerX -= shiftX;
 			if(playerY == 0) playerY -= shiftY;
 			
-		}
-	}
+			}
+	}}
 	
 	/***********************************************************************
 	* @param AnimatedSprite
@@ -502,7 +498,6 @@ public class Judgement extends Game {
 			System.out.println("bullet COllision");
 			bulletX=200000;
 			bulletY=200000;
-					
 		}
 		else{
 
@@ -553,7 +548,10 @@ public class Judgement extends Game {
 					}
 					//Move the player to the new position
 					//playerX = tile.event().getNewX();
+					//moves the bullet off screen
 					playerY = tile.event().getNewY();
+					bulletX=200000;
+					bulletY=200000;
 				}	
 			} //end warp
 			//Item exchange event

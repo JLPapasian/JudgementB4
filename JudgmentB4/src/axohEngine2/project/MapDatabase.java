@@ -172,13 +172,13 @@ public class MapDatabase {
 		//cityO.accessTile(96).addEvent(getMpotion);
 		
 		//Set up Monsters and NPCs
-	//	npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.RANDOMPATH, "npc", false);
-	//	npc.setMultBounds(6, 50, 92, 37, 88, 62, 92, 62, 96);
-	//	npc.setMoveAnim(32, 48, 40, 56, 3, 8);
-	//	npc.setHealth(60);
+		//npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.ENEMY, "npc", false);
+		//npc.setMultBounds(6, 50, 92, 37, 88, 62, 92, 62, 96);
+		//npc.setMoveAnim(32, 48, 40, 56, 3, 8);
+		//npc.setHealth(60);
 		
 		//Add the mobs to their tile home
-	//	city1.accessTile(20).addMob(npc);
+		//maps[0].accessTile(16).addMob(npc);
 	}
 	
 	
