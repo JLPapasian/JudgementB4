@@ -155,13 +155,15 @@ public class Judgement extends Game {
 	
 	
 	//Projectile Variables
+	
+	
 	boolean arrow, bulletSpawned; //MODIFICATION
 	private int bulletLifeSpan=50;
 	private int bulletX;
 	private int bulletY;
 	private int bulletXDelta;
 	private int bulletYDelta;
-	private int bulletSpeed =7; //not used yet. call this under the control sections
+	private int bulletSpeed =7; 
 	
 	//Audio variables
 	public static AudioStream titleMusic;
