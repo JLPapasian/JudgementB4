@@ -28,6 +28,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 
 import axohEngine2.entities.ImageEntity;
+import axohEngine2.sound.Audio;
 
 public class InGameMenu {
 
@@ -74,6 +75,9 @@ public class InGameMenu {
 	private int experience;
 	private int nextLevel = 20;
 	private int nextExp = 25;
+	
+	private String muteToggle;
+	
 	
 	/********************************************************************************************
 	 * The Items algorithms need an explanation, starting with:
@@ -218,7 +222,7 @@ public class InGameMenu {
 	public void render(JFrame frame, Graphics2D g2d, int inX, int inY) {
 		g2d.drawImage(_background.getImage(), 0, 0, SCREENWIDTH, SCREENHEIGHT, frame);
 		g2d.setColor(Color.BLACK);
-		g2d.drawString("Stats", 120, 170);
+		g2d.drawString("Toggle Audio", 90, 170);
 		g2d.drawString("Option", 120, 275);
 		g2d.drawString("Exit Menu", 120, 385);
 		g2d.drawString("Quit To Title", 120, 490);
@@ -250,6 +254,15 @@ public class InGameMenu {
 		if(_option == OPTION.SAVE){
 			g2d.setColor(Color.BLACK);
 			g2d.drawString("Save Game", 880, 200);
+		}
+		
+		if(_option == OPTION.TOGGLEAUDIO){
+			g2d.setColor(Color.BLACK);
+			if(Audio.getMuted())
+				muteToggle="Muted";
+			else
+				muteToggle = "Un-Muted";
+			g2d.drawString(muteToggle, 880, 200);
 		}
 	}
 	

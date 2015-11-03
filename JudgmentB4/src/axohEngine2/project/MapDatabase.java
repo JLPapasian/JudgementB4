@@ -71,6 +71,9 @@ public class MapDatabase {
 	private Scanner fileInput;			//Used to read in the maze from a text file
 	private int cur;
 	private String nextTile;
+	private int numMapFiles= 10;
+	private int lastRandom;
+	private int curRandom;
 	
 	/****************************************************************
 	 * Constructor
@@ -103,45 +106,30 @@ public class MapDatabase {
 		hf = new Tile(frame, g2d, "floor", misc, 8);
 		c = new Tile(frame, g2d, "chest", extras2, 0, true);
 		
+
+		Random rn = new Random();
+		lastRandom = rn.nextInt(numMapFiles);
 		
-		
-		//Creates array of tiles for each map
-		
-		
-		
-	//	Tile[] map0Tiles = new Tile[169];
-	//	Tile[] map1Tiles = new Tile[169];
-	//	Tile[] map2Tiles = new Tile[169];
-			
-		
-		//testing for random map placement
-		//Random rn = new Random();
-		//for(int x=0; x<100 ;x++)
-		//System.out.println(rn.nextInt(3)+1);
-		
-		
-		//fills the arrays with tiles based off of text files.
-		
-		//mapFromFile("map"+(rn.nextInt(3)+1)+".txt", city1Tiles);
-/// Commented out for now, but it looks for a random text file between numbers 1 and 3,		
-		
-		int x;
-		
-		for (x=1; x<11; x++){
+		for (int x=1; x<11; x++){
 			
 			if (x==10)
 			{
 				mapFromFile("mapEnd.txt", mapTiles[x]);
 				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map5");
-				
 			}
 			
 			else{
-				Random rn = new Random();
-				mapFromFile("map"+(rn.nextInt(10))+".txt", mapTiles[x]);
+				
+				curRandom = rn.nextInt(numMapFiles);
+				while(curRandom == lastRandom) //Checks to see if the new random is the same as the last random
+					curRandom = rn.nextInt(numMapFiles);  //if it is, it gets a new random
+				
+				lastRandom=curRandom;
+				
+				mapFromFile("map"+(curRandom)+".txt", mapTiles[x]);
 				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map");
 				warp[x] = new Event("ToNext", TYPE.WARP);
-				warp[x] .setWarp(16, -190);
+				warp[x] .setWarp(16, -300);
 				maps[x].accessTile(8).addEvent(warp[x]);
 			}
 		}
@@ -151,7 +139,7 @@ public class MapDatabase {
 		mapFromFile("mapStart.txt", mapTiles[0]);
 		maps[0] =  new Map(frame, g2d, mapTiles[0], 13, 13, "map5");
 		warp[0] = new Event("ToNext", TYPE.WARP);
-		warp[0] .setWarp(16, -190);
+		warp[0] .setWarp(16, -300);
 		maps[0].accessTile(8).addEvent(warp[0]);
 		
 

@@ -147,9 +147,10 @@ public class Mob extends AnimatedSprite{
 		//if(ai == TYPE.BULLET) {
 		//	flyingBullet();
 		//}
-		if(hostile && health < 0) {
-			setAlive(false);
-		}
+		
+		//if(hostile && health < 0) {
+		//	setAlive(false);
+		//}
 	}
 	
 	/***************************************************************

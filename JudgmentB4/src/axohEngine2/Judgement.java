@@ -19,6 +19,7 @@ package axohEngine2;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
@@ -137,6 +138,8 @@ public class Judgement extends Game {
 	ImageEntity inGameMenu;
 	ImageEntity titleMenu;
 	ImageEntity titleMenu2;
+	ImageEntity healthBar;
+	ImageEntity healthBarOutline;
 	
 	//Menu classes
 	TitleMenu title;
@@ -158,7 +161,7 @@ public class Judgement extends Game {
 	private int bulletY;
 	private int bulletXDelta;
 	private int bulletYDelta;
-	private int bulletSpeed; //not used yet. call this under the control sections
+	private int bulletSpeed =7; //not used yet. call this under the control sections
 	
 	//Audio variables
 	public static AudioStream titleMusic;
@@ -195,10 +198,10 @@ public class Judgement extends Game {
 		//****Initialize Misc Variables
 		state = STATE.TITLE;
 		option = OPTION.NONE;
-		startPosX = 300; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
+		startPosX = 500; //TODO: Make a method that takes a tile index and spits back an x or y coordinate of that tile
 		startPosY = 0;
-		mapX = startPosX;
-		mapY = startPosY;
+		mapX = 0;
+		mapY = 32;
 		scale = 4;
 		playerSpeed = 3;
 		
@@ -222,9 +225,13 @@ public class Judgement extends Game {
 		inGameMenu = new ImageEntity(this);
 		titleMenu = new ImageEntity(this);
 		titleMenu2 = new ImageEntity(this);
+		healthBar = new ImageEntity(this);
+		healthBarOutline = new ImageEntity(this);
 		inGameMenu.load("/menus/ingamemenu.png");
 		titleMenu.load("/menus/titlemenu1.png");
 		titleMenu2.load("/menus/titlemenu2.png");
+		healthBar.load("/menus/healthbar.png");
+		healthBarOutline.load("/menus/healthbarOutline.png");
 		
 		//*****Initialize Menus***************************************************************************
 		title = new TitleMenu(titleMenu, titleMenu2, titleArrow, SCREENWIDTH, SCREENHEIGHT, simple, bold, bigBold);
@@ -336,25 +343,26 @@ public class Judgement extends Game {
 				bullet.renderMob(bulletX, bulletY);
 			}
 			
+			g2d.drawImage(healthBarOutline.getImage(), 1000, 100, 300, 1000, this.rootPane);
+			g2d.drawImage(healthBar.getImage(), 1000, 100, 300, 50*(playerMob.getHealth()), this.rootPane);
+
 			
-			
-			/*
-			if(bulletSpawned == true && bulletSpawnTime < 250) {
-				bullet.renderMob(CENTERX - playerX + 5, CENTERY - playerY + 44);
-				bullet.moveBullet(-1, 0);
-				bulletSpawnTime++;
-			}
-*/
-			
-			
-			g2d.setColor(Color.GREEN);
-			g2d.drawString("Health: " + playerMob.getHealth(), CENTERX - 780, CENTERY - 350);
+			//g2d.setColor(Color.GREEN);
+			g2d.drawString("Health: " + playerMob.getHealth(), CENTERX+200, CENTERY - 350);
 			g2d.setColor(Color.BLUE);
-			g2d.drawString("Magic: " + inMenu.getMagic(), CENTERX - 280, CENTERY - 350);
-			g2d.setColor(Color.YELLOW);
+			//g2d.drawString("Magic: " + inMenu.getMagic(), CENTERX - 280, CENTERY - 350);
+			//g2d.setColor(Color.YELLOW);
+			
 			
 			//NPC IS CURRENTLY REMOVED
 			//g2d.drawString("NPC health: " + currentOverlay.accessTile(98).mob().health(), CENTERX + 200, CENTERY - 350);
+			
+			
+			
+			if(playerMob.getHealth()<0){
+				reset();
+				state= STATE.TITLE;
+			}
 		}
 		if(state == STATE.INGAMEMENU){
 			//Render the in game menu and specific text
@@ -530,18 +538,7 @@ public class Judgement extends Game {
 					//Get the new map
 					
 					currentMapIndex=currentMapIndex+1;
-					currentMap = mapBase.getMap(currentMapIndex);
-					
-					
-					/*
-					for(int i = 0; i < mapBase.maps.length; i++){
-						 if(mapBase.getMap(i) == null) continue;
-						 if(tile.event().getMapName() == mapBase.getMap(i).mapName()) currentMap = mapBase.getMap(i);
-						// if(tile.event().getOverlayName() == mapBase.getMap(i).mapName()) currentOverlay = mapBase.getMap(i);
-					}
-					*/
-					
-					
+					currentMap = mapBase.getMap(currentMapIndex);				
 					
 					//Load in the new maps Tiles and Mobs
 					for(int i = 0; i < currentMap.getWidth() * currentMap.getHeight(); i++){
@@ -551,7 +548,7 @@ public class Judgement extends Game {
 				//		if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
 					}
 					//Move the player to the new position
-					playerX = tile.event().getNewX();
+					//playerX = tile.event().getNewX();
 					playerY = tile.event().getNewY();
 				}	
 			} //end warp
@@ -599,7 +596,7 @@ public class Judgement extends Game {
 		if(ya > 0) {
 			playerY += ya; //up +#
 		}
-		if(ya < 0) {
+		if(ya < 0  && playerY >-300) {
 			 playerY += ya; //down -#
 		}
 	}
@@ -740,9 +737,6 @@ public class Judgement extends Game {
 		 * Special actions for In Game Menu
 		 ******************************************/
 		if(state == STATE.INGAMEMENU && inputWait < 0) {
-			
-			//No option is chosen yet
-			if(option == OPTION.NONE){ 
 				//W or up arrow(Move selection)
 				if(keyUp) {
 					if(inLocation > 0) {
@@ -764,7 +758,8 @@ public class Judgement extends Game {
 				//Enter key(Make a choice)
 				if(keyEnter) {
 					if(inLocation == 0){
-						option = OPTION.ITEMS;
+						Audio.ToggleAudio();
+						option = OPTION.TOGGLEAUDIO;
 						inputWait = 5;
 					}
 					if(inLocation == 1){
@@ -780,13 +775,12 @@ public class Judgement extends Game {
 						
 					}
 					if(inLocation == 3){
+						reset();
 						inputWait = 1;
 						state = STATE.TITLE;
-						Audio.StartTitleMusic(titleSnd);
 					}
 					keyEnter = false;
 				}
-			}
 			
 			//Set actions for specific choices in the menu
 			//Items
@@ -833,25 +827,13 @@ public class Judgement extends Game {
 				}
 			}
 			
-			//Saving
-			if(option == OPTION.SAVE){
-				//Key enter(Save the file)
-				if(keyEnter){
-					save.saveState(currentFile, data());
-					inputWait = 20;
-					wait = 200;
-					waitOn = true;
-					option = OPTION.NONE;
-				}
-			}
-			
 			//Backspace(if a choice has been made, this backs out of it)
 			if(keyInventoryClose && option != OPTION.NONE) {
 				option = OPTION.NONE;
 				inMenu.setItemLoc(0);
-				sectionLoc = 0;
+				//sectionLoc = 0;
 				inputWait = 1;
-				keyBack = false;
+				keyInventoryClose = false;
 			}
 			//Backspace(if a choice has not been made, this closes the inventory)
 			if(keyInventoryClose && option == OPTION.NONE) {
@@ -937,7 +919,7 @@ public class Judgement extends Game {
 		    		attackWait = 30;
 		    		arrow = true;
 		    		bulletXDelta=0; //Resets the bullet x delta
-		    		bulletYDelta=-10; //changes the bullet y delta
+		    		bulletYDelta=-bulletSpeed; //changes the bullet y delta
 		    						/////// Does the same for each direction
 		    	}
 	            break;
@@ -947,14 +929,14 @@ public class Judgement extends Game {
 		    		attackWait = 30;
 		    		arrow = true;
 		    		bulletXDelta=0;
-		    		bulletYDelta=10;
+		    		bulletYDelta=bulletSpeed;
 		    	}
 	            break;
 		    } case KeyEvent.VK_RIGHT: {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
 		    		attackWait = 30;
 		    		arrow = true;
-		    		bulletXDelta=-10;
+		    		bulletXDelta=-bulletSpeed;
 		    		bulletYDelta=0;
 		    	}
 	            break;
@@ -962,7 +944,7 @@ public class Judgement extends Game {
 		    	if(attackWait <= 0 && bulletSpawned == false) {
 		    		attackWait = 30;
 		    		arrow = true;
-		    		bulletXDelta=10;
+		    		bulletXDelta=bulletSpeed;
 		    		bulletYDelta=0;
 		    	}
 	            break;	 //MODIFICATION_END
@@ -1040,8 +1022,51 @@ public class Judgement extends Game {
 	    	break;
 	    case KeyEvent.VK_SPACE:
 	    	keySpace = false;
+	    	reset();
 	    	break;
 		}
+	}
+	
+	
+	public void reset(){
+		Audio.StartTitleMusic("2.au");
+		tiles().clear();
+		//sprites().clear();
+		playerMob.setHealth(20);
+		playerMob.setAlive(true);
+		mapBase = new MapDatabase(this, graphics(), scale);
+		//Get Map from the database
+	
+
+		mapBase = new MapDatabase(this, graphics(), scale);
+		//Get Map from the database
+		
+			currentMapIndex =0;
+			currentMap = mapBase.getMap(currentMapIndex);
+
+		//Add the tiles from the map to be updated each system cycle
+		for(int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++){
+			addTile(currentMap.accessTile(i));
+		//	addTile(currentOverlay.accessTile(i));
+			if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
+		//	if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+			currentMap.accessTile(i).getEntity().setX(-300);
+		//	currentOverlay.accessTile(i).getEntity().setX(-300);
+		}
+		
+
+	
+		
+		bulletSpawned = false;
+		bulletSpawnTime = 0;
+		System.out.println("Reset");
+		bulletX=200000;
+		bulletY=200000;
+		bullet.renderMob(bulletX, bulletY);
+		
+		playerX=startPosX;
+		playerY=startPosY;
+	
 	}
 
 	/**
@@ -1078,4 +1103,4 @@ public class Judgement extends Game {
 	 * 
 	 * Currently only the player x and y location and the current map is saved
 	 */
-} //end class
+	} //end class

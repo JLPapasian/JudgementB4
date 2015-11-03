@@ -9,8 +9,12 @@ import sun.audio.*;
 public class Audio {
 
 	private static AudioStream stream;
+	private static boolean muted = false;
+	
+	
 	public static void PlaySound(String file )
 	{
+		if(!muted){
 			try{
 				// open the sound file as a Java input stream
 			    String gongFile = "audioclips/"+file;
@@ -25,11 +29,12 @@ public class Audio {
 					e.printStackTrace();
 				}			    
 			}
-	
+	}
 	
 	
 	public static void StartTitleMusic(String file)
 	{
+		if(!muted){
 			try{
 				// open the sound file as a Java input stream
 			    String gongFile = "audioclips/"+file;
@@ -46,12 +51,25 @@ public class Audio {
 					e.printStackTrace();
 				}			    
 			}
-	
+	}
 	public static void StopTitleMusic()
 	{
+		if(!muted){
+	
 		AudioPlayer.player.stop(Judgement.titleMusic);			    
 			}
-
+	}
+	
+	
+	public static void ToggleAudio()
+	{
+	muted=!muted;
+	}
+	
+	public static boolean getMuted()
+	{
+		return muted;
+	}
 	
 }
 
