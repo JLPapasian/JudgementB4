@@ -177,8 +177,10 @@ public class Judgement extends Game {
 	 * Constructor
 	 * 
 	 * Set up the super class Game and set the window to appear
-	 **********************************************************************/
-	public Judgement() {
+
+	 ******************************************************************/
+	 
+	 public Judgement() {
 		super(130, SCREENWIDTH, SCREENHEIGHT);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -206,6 +208,13 @@ public class Judgement extends Game {
 		mapY = 32;
 		scale = 4;
 		playerSpeed = 3;
+		
+		
+			try {
+				Audio.loadMuted();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		
 		Audio.StartTitleMusic("2.au");
 		

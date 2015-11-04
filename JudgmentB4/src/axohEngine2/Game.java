@@ -113,7 +113,7 @@ abstract class Game extends JFrame implements Runnable, KeyListener, MouseListen
 	 * @param width - An Int defining the width of the window
 	 * @param height - An Int defining the height of the window
 	 ****************************************************************/
-	public Game(int frameRate, int width, int height) {
+	public Game(int frameRate, int width, int height){
 		//Set up JFrame window
 		Dimension size = new Dimension(width, height);
 		setPreferredSize(size);
