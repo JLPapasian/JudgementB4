@@ -218,9 +218,16 @@ public class Mob extends AnimatedSprite{
 	/***************************************************************
 	 * AI logic used for the chase something ai type
 	 ****************************************************************/
-	private void chase() {
-		if(getXLoc()>0){
-		
+	public void chase(int xLocation, int yLocation) {
+		if((getXLoc() - xLocation) > 0){
+			xx -= speed;
+		} else if((getXLoc() - xLocation) < 0){
+			xx += speed;
+		}
+		if((getYLoc() - yLocation) > 0){
+			yy -= speed;
+		} else if((getYLoc() - yLocation) < 0){
+			yy += speed;
 		}
 	}
 	

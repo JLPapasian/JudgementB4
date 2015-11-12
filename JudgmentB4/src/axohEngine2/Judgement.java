@@ -156,6 +156,11 @@ public class Judgement extends Game {
 	Mob randomNPC;
 	Mob bullet; //Modification
 	
+	private int testNPCSpawnTime; //temp
+	private int testNPCLocationX; //testing
+	private int testNPCLocationY; //temporary (Testing)
+	Mob testingNPC;	//TEMP
+	
 	
 	//Projectile Variables
 	
@@ -266,6 +271,10 @@ public class Judgement extends Game {
 		playerMob.setCurrentAttack("sword"); //Starting attack
 		playerMob.setHealth(20); //If you change the starting max health, dont forget to change it in inGameMenu.java max health also
 		sprites().add(playerMob);
+
+		//Testing Purposes Only
+		testingNPC = new Mob(this, graphics(), bullets, 2, TYPE.CHASE, "testingNPC", false);
+
 		
 		//Projectile
 		bulletX=bulletY=20000;
@@ -339,6 +348,30 @@ public class Judgement extends Game {
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
 			
 			Audio.StopTitleMusic(); //Stops the music clip
+			
+			
+
+
+int playerLocationX = CENTERX - playerX;	//temp
+			int playerLocationY = CENTERY - playerY;	//temp
+			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
+			
+			Audio.StopTitleMusic(); //Stops the music clip
+			
+			if(testNPCSpawnTime == 0) {	//This small section was added
+				testNPCSpawnTime++;
+				testNPCLocationX = CENTERX - playerX+120;
+				testNPCLocationY = CENTERY - playerY-250;
+				testingNPC.setSpeed(1);
+			} else {
+				testingNPC.renderMob(testNPCLocationX, testNPCLocationY);
+			}
+
+			testingNPC.chase(playerLocationX, playerLocationY);
+			
+			
+			
+			
 			
 			if(bulletSpawned == true && bulletSpawnTime < bulletLifeSpan+1) {
 				if(bulletSpawnTime==0)
