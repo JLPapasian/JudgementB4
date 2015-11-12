@@ -21,11 +21,14 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.JFrame;
 
 import axohEngine2.entities.AnimatedSprite;
+import axohEngine2.entities.Bullet;
 import axohEngine2.entities.ImageEntity;
 import axohEngine2.entities.Mob;
 import axohEngine2.entities.SpriteSheet;
@@ -165,12 +168,15 @@ public class Judgement extends Game {
 	private int bulletYDelta;
 	private int bulletSpeed =7; 
 	
+	private List<Bullet> bulletsArr = new ArrayList<>();
+	
 	//Audio variables
 	public static AudioStream titleMusic;
 	private String menuBlipSnd = "blip.wav";
 	private String startGameSnd = "startGame.wav";
 	private String titleSnd = "2.au";
 	private String shootSnd = "shoot.wav";
+	private String bulletColSnd = "bulletCol.wav";
 	
 	
 	/*********************************************************************** 
@@ -190,7 +196,9 @@ public class Judgement extends Game {
 	 * Inherited Method
 	 * This method is called only once by the 'Game.java' class, for startup
 	 * Initialize all non-int variables here
-	 *****************************************************************************/
+	 ********************
+	 *
+	 *sw*********************************************************/
 	void gameStartUp() {
 		/****************************************************************
 		 * The "camera" is the mapX and mapY variables. These variables 
@@ -208,7 +216,6 @@ public class Judgement extends Game {
 		mapY = 32;
 		scale = 4;
 		playerSpeed = 3;
-		
 		
 			try {
 				Audio.loadMuted();
@@ -261,6 +268,7 @@ public class Judgement extends Game {
 		sprites().add(playerMob);
 		
 		//Projectile
+		bulletX=bulletY=20000;
 		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);
 		sprites().add(bullet);
 		
@@ -268,7 +276,7 @@ public class Judgement extends Game {
 		mapBase = new MapDatabase(this, graphics(), scale);
 		//Get Map from the database
 	
-			currentMap = mapBase.getMap(currentMapIndex);
+		currentMap = mapBase.getMap(currentMapIndex);
 
 		//Add the tiles from the map to be updated each system cycle
 		for(int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++){
@@ -282,6 +290,10 @@ public class Judgement extends Game {
 		
 		playerX=startPosX;
 		playerY=startPosY;
+
+		playerMob.updatePlayer(false, false, true, false); 
+		//Faces the character forward and gets around the glitch that occurred when a player attacked before moving
+		
 		
 		requestFocus(); //Make sure the game is focused on
 		start(); //Start the game loop
@@ -331,17 +343,23 @@ public class Judgement extends Game {
 			if(bulletSpawned == true && bulletSpawnTime < bulletLifeSpan+1) {
 				if(bulletSpawnTime==0)
 				{
+					bulletsArr.add(new Bullet(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false));
 					bulletX=CENTERX - playerX+50;
 					bulletY=CENTERY - playerY+50;
 				}
 				bulletX=bulletX-bulletXDelta; 
 				bulletY=bulletY-bulletYDelta;
+				
 								
 				bullet.renderMob(bulletX, bulletY);
 				//bullet.moveBullet(-1, 0); //commented out temporarily for testing.
-				//It seems the issue with the bullet not resetting was caused by the moveBullet function
+		
+				//bulletsar.stream().forEach(bullet -> bullet.drawBullet(g));
 				
 				bulletSpawnTime++;
+				
+				
+				
 			}
 			
 			if(bulletSpawnTime == bulletLifeSpan) {
@@ -370,10 +388,11 @@ public class Judgement extends Game {
 			
 			
 			
-			if(playerMob.getHealth()<0){
+			if(playerMob.getHealth()<=0){
 				reset();
 				state= STATE.TITLE;
 			}
+			
 		}
 		if(state == STATE.INGAMEMENU){
 			//Render the in game menu and specific text
@@ -507,6 +526,7 @@ public class Judgement extends Game {
 			System.out.println("bullet COllision");
 			bulletX=200000;
 			bulletY=200000;
+			Audio.PlaySound(bulletColSnd);
 		}
 		else{
 
@@ -519,6 +539,7 @@ public class Judgement extends Game {
 			smallestOverlap = rightOverlap;
 			shiftX = rightOverlap;
 			shiftY = 0;
+			
 		}
 		if(topOverlap < smallestOverlap){ //up
 			smallestOverlap = topOverlap;
@@ -528,11 +549,10 @@ public class Judgement extends Game {
 		if(botOverlap < smallestOverlap){ //down
 			smallestOverlap = botOverlap;
 			shiftX = 0;
-			shiftY = botOverlap;
-		}
-		}
-	
+			shiftY = botOverlap;	
+		}		
 		
+		}
 		
 		//Deal with a tiles possible event property
 		if(tile.hasEvent()){
@@ -543,6 +563,7 @@ public class Judgement extends Game {
 					sprites().clear();
 					sprites().add(playerMob);
 					sprites().add(bullet);
+					sprites().add(titleArrow);
 					//Get the new map
 					
 					currentMapIndex=currentMapIndex+1;
@@ -753,7 +774,7 @@ public class Judgement extends Game {
 					if(inLocation > 0) {
 						inY -= 108;
 						inLocation--;
-						inputWait = 3;
+						inputWait = 2;
 						Audio.PlaySound(menuBlipSnd); //plays the blip sound when moving between options
 					}
 				}
@@ -762,7 +783,7 @@ public class Judgement extends Game {
 					if(inLocation < 3) {
 						inY += 108;
 						inLocation++;
-						inputWait = 3;
+						inputWait = 2;
 						Audio.PlaySound(menuBlipSnd); //plays the blip sound when moving between options
 					}
 				}
@@ -839,16 +860,8 @@ public class Judgement extends Game {
 				}
 			}
 			
-			//Backspace(if a choice has been made, this backs out of it)
-			if(keyInventoryClose && option != OPTION.NONE) {
-				option = OPTION.NONE;
-				inMenu.setItemLoc(0);
-				//sectionLoc = 0;
-				inputWait = 1;
-				keyInventoryClose = false;
-			}
 			//Backspace(if a choice has not been made, this closes the inventory)
-			if(keyInventoryClose && option == OPTION.NONE) {
+			if(keyInventoryClose){
 				state = STATE.GAME;
 				option = OPTION.NONE;
 				inLocation = 0;
@@ -918,16 +931,17 @@ public class Judgement extends Game {
 	        	keySpace = true;
 	        	break;
 	        case KeyEvent.VK_9:
-	        	playerMob.healMob(5);
+	        	playerMob.healMob(1);
 	        	break;
 	        case KeyEvent.VK_6:
-	        	playerMob.damageMob(5);
+	        	if(state == STATE.GAME)
+	        	playerMob.damageMob(1);
 	        	break;
 	        case KeyEvent.VK_B:
 	        	break;
 	        	
 	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
-		    	if(attackWait <= 0 && bulletSpawned == false) {
+		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
 		    		attackWait = 30;
 		    		arrow = true;
 		    		bulletXDelta=0; //Resets the bullet x delta
@@ -937,7 +951,7 @@ public class Judgement extends Game {
 	            break;
 		    } case KeyEvent.VK_UP: {
 		    	System.out.println(currentMapIndex);
-		    	if(attackWait <= 0 && bulletSpawned == false) {
+		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
 		    		attackWait = 30;
 		    		arrow = true;
 		    		bulletXDelta=0;
@@ -945,7 +959,7 @@ public class Judgement extends Game {
 		    	}
 	            break;
 		    } case KeyEvent.VK_RIGHT: {
-		    	if(attackWait <= 0 && bulletSpawned == false) {
+		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
 		    		attackWait = 30;
 		    		arrow = true;
 		    		bulletXDelta=-bulletSpeed;
@@ -953,7 +967,7 @@ public class Judgement extends Game {
 		    	}
 	            break;
 		    } case KeyEvent.VK_LEFT: {
-		    	if(attackWait <= 0 && bulletSpawned == false) {
+		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
 		    		attackWait = 30;
 		    		arrow = true;
 		    		bulletXDelta=bulletSpeed;
@@ -1034,7 +1048,6 @@ public class Judgement extends Game {
 	    	break;
 	    case KeyEvent.VK_SPACE:
 	    	keySpace = false;
-	    	reset();
 	    	break;
 		}
 	}
@@ -1078,7 +1091,7 @@ public class Judgement extends Game {
 		
 		playerX=startPosX;
 		playerY=startPosY;
-	
+			
 	}
 
 	/**

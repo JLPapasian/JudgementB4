@@ -36,6 +36,7 @@ public class MapDatabase {
 	SpriteSheet environment32;
 	SpriteSheet extras2;
 	SpriteSheet mainCharacter;
+	SpriteSheet hints;
 	
 	
 	//Tiles - Names are defined in the constructor for better identification
@@ -87,8 +88,12 @@ public class MapDatabase {
 		//Currently a maximum of 200 maps possible(Can be changed if needed)
 		maps = new Map[200];
 		
+		//Checks the directory for the number of maps to use the random generator (minus the first anf last map)
+		numMapFiles = new File("maps/").listFiles().length-2;
+		
+		
 		//Set up spriteSheets
-		misc = new SpriteSheet("/textures/environments/environments1.png", 16, 16, 16, scale);
+		misc = new SpriteSheet("/textures/environments/environments.png", 16, 16, 16, scale);
 		buildings = new SpriteSheet("/textures/environments/4x4buildings.png", 4, 4, 64, scale);
 		environment32 = new SpriteSheet("/textures/environments/32SizeEnvironment.png", 8, 8, 32,scale);
 		extras2 = new SpriteSheet("/textures/extras/extras2.png", 16, 16, 16, scale);
@@ -96,10 +101,10 @@ public class MapDatabase {
 		
 		//Set up tile blueprints and if they are animating
 		d = new Tile(frame, g2d, "door", environment32, 0);
-		f = new Tile(frame, g2d, "flower", misc, 1);
+		f = new Tile(frame, g2d, "flower", misc, 11);
 		g = new Tile(frame, g2d, "grass", misc, 0);
-		b = new Tile(frame, g2d, "bricks", misc, 16, true);
-		r = new Tile(frame, g2d, "walkWay", misc, 6);
+		b = new Tile(frame, g2d, "bricks", misc, 14, true);
+		r = new Tile(frame, g2d, "walkWay", misc, 10);
 		e = new Tile(frame, g2d, "empty", misc, 7);
 		ro = new Tile(frame, g2d, "rock", misc, 2);
 		h = new Tile(frame, g2d, "house", buildings, 0, true);

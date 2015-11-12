@@ -227,7 +227,7 @@ public class InGameMenu {
 		g2d.drawString("Exit Menu", 120, 385);
 		g2d.drawString("Quit To Title", 120, 490);
 		//g2d.drawString("Exit Menu", 120, 600);
-		g2d.setColor(Color.YELLOW);
+		g2d.setColor(Color.WHITE);
 		g2d.drawRect(inX, inY, 435, 104);
 		
 		

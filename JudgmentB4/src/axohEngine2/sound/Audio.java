@@ -101,14 +101,7 @@ public class Audio {
 	            w.close();
 	        } catch (IOException e) {
 	            System.err.println("Problem writing to the file statsTest.txt");
-	        }
-	   
-
-	  
-	    
-			  
-		
-	    
+	        }	     
 	}
 
 	public static void loadMuted() throws IOException
