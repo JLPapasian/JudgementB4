@@ -177,6 +177,7 @@ public class Tile extends AnimatedSprite {
 	public boolean isSlippery() { return _slippery; }
 	public boolean isBreakable() { return _breakable; }
 	public boolean hasProperty() { return hasProperty; }
+	public String getName() { return _name; }
 
 	/*******************************************************
 	 * Load the tile animation

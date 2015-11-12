@@ -20,5 +20,6 @@ public enum TYPE {
 	SEARCH,
 	BULLET, //MODIFICATION
 	CHASE,
-	WALL
+	WALL, 
+	ENEMY
 }
