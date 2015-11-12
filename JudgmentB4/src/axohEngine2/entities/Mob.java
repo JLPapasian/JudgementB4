@@ -141,9 +141,9 @@ public class Mob extends AnimatedSprite{
 		if(ai == TYPE.SEARCH) {
 			search();
 		}
-		if(ai == TYPE.CHASE) {
-			chase();
-		}
+		//if(ai == TYPE.CHASE) {
+		//	chase();
+		//}
 		//if(ai == TYPE.BULLET) {
 		//	flyingBullet();
 		//}
