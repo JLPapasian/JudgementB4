@@ -88,7 +88,7 @@ public class MapDatabase {
 		//Currently a maximum of 200 maps possible(Can be changed if needed)
 		maps = new Map[200];
 		
-		//Checks the directory for the number of maps to use the random generator (minus the first anf last map)
+		//Checks the directory for the number of maps to use the random generator (minus the first and last map)
 		numMapFiles = new File("maps/").listFiles().length-2;
 		
 		
@@ -115,7 +115,7 @@ public class MapDatabase {
 		Random rn = new Random();
 		lastRandom = rn.nextInt(numMapFiles);
 		
-		for (int x=1; x<11; x++){
+		for (int x=1; x<=10; x++){
 			
 			if (x==10)
 			{
@@ -124,13 +124,12 @@ public class MapDatabase {
 			}
 			
 			else{
-				
 				curRandom = rn.nextInt(numMapFiles);
 				while(curRandom == lastRandom) //Checks to see if the new random is the same as the last random
 					curRandom = rn.nextInt(numMapFiles);  //if it is, it gets a new random
 				
 				lastRandom=curRandom;
-				
+		
 				mapFromFile("map"+(curRandom)+".txt", mapTiles[x]);
 				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map");
 				warp[x] = new Event("ToNext", TYPE.WARP);

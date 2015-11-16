@@ -352,7 +352,7 @@ public class Judgement extends Game {
 			
 
 
-int playerLocationX = CENTERX - playerX;	//temp
+			int playerLocationX = CENTERX - playerX;	//temp
 			int playerLocationY = CENTERY - playerY;	//temp
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
 			
@@ -370,29 +370,19 @@ int playerLocationX = CENTERX - playerX;	//temp
 			testingNPC.chase(playerLocationX, playerLocationY);
 			
 			
-			
-			
-			
-			if(bulletSpawned == true && bulletSpawnTime < bulletLifeSpan+1) {
-				if(bulletSpawnTime==0)
-				{
-					bulletsArr.add(new Bullet(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false));
-					bulletX=CENTERX - playerX+50;
-					bulletY=CENTERY - playerY+50;
+			//Spawning and moving the bullet
+			if (bulletSpawned == true && bulletSpawnTime < bulletLifeSpan + 1) {
+				if (bulletSpawnTime == 0) {
+					//bulletsArr.add(new Bullet(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false));
+					bulletX = CENTERX - playerX+60;
+					bulletY = CENTERY - playerY + 50;
 				}
-				bulletX=bulletX-bulletXDelta; 
-				bulletY=bulletY-bulletYDelta;
-				
-								
-				bullet.renderMob(bulletX, bulletY);
-				//bullet.moveBullet(-1, 0); //commented out temporarily for testing.
-		
-				//bulletsar.stream().forEach(bullet -> bullet.drawBullet(g));
-				
-				bulletSpawnTime++;
-				
-				
-				
+				bulletX = bulletX - bulletXDelta; //Moves the bullet
+				bulletY = bulletY - bulletYDelta; //Bullet delta x and y are determined by which arrow key was pressed
+				bullet.renderMob(bulletX, bulletY); //Renders the bullet
+				bulletSpawnTime++;			
+				// bullet.moveBullet(-1, 0);
+				// bulletsArr.stream().forEach(bullet -> bullet.drawBullet(g));
 			}
 			
 			if(bulletSpawnTime == bulletLifeSpan) {
@@ -405,11 +395,12 @@ int playerLocationX = CENTERX - playerX;	//temp
 				bullet.renderMob(bulletX, bulletY);
 			}
 			
+			//Drawing the health bar
 			g2d.drawImage(healthBarOutline.getImage(), 1000, 700, 300, -600, this.rootPane);
-			g2d.drawImage(healthBar.getImage(), 1000, 700, 300, -playerMob.getHealth()*30, this.rootPane);
+			g2d.drawImage(healthBar.getImage(), 1000, 700, 300, -playerMob.getHealth()*30, this.rootPane); 
 
 			
-			//g2d.setColor(Color.GREEN);
+			g2d.setColor(Color.RED);
 			g2d.drawString("Health: " + playerMob.getHealth(), CENTERX+200, CENTERY - 350);
 			g2d.setColor(Color.BLUE);
 			//g2d.drawString("Magic: " + inMenu.getMagic(), CENTERX - 280, CENTERY - 350);
@@ -1085,46 +1076,33 @@ int playerLocationX = CENTERX - playerX;	//temp
 		}
 	}
 	
+	//Is called to reset variables and reselect random maps
+	public void reset() {
 	
-	public void reset(){
-		Audio.StartTitleMusic("2.au");
-		tiles().clear();
-		//sprites().clear();
-		playerMob.setHealth(20);
-		playerMob.setAlive(true);
-		mapBase = new MapDatabase(this, graphics(), scale);
-		//Get Map from the database
-	
+		Audio.StartTitleMusic("2.au");  //restarts title music. Checks for mute within Audio.java
+		tiles().clear(); //Clears the current tiles
+		mapBase = new MapDatabase(this, graphics(), scale); //Builds a new map database
+		currentMap = mapBase.getMap(0); //Sets the current map to 0  The first map
 
-		mapBase = new MapDatabase(this, graphics(), scale);
-		//Get Map from the database
-		
-			currentMapIndex =0;
-			currentMap = mapBase.getMap(currentMapIndex);
-
-		//Add the tiles from the map to be updated each system cycle
-		for(int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++){
+		// Add the tiles from the map to be updated each system cycle
+		for (int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++) {
 			addTile(currentMap.accessTile(i));
-		//	addTile(currentOverlay.accessTile(i));
-			if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
-		//	if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+			if (currentMap.accessTile(i).hasMob())
+				sprites().add(currentMap.accessTile(i).mob());
 			currentMap.accessTile(i).getEntity().setX(-300);
-		//	currentOverlay.accessTile(i).getEntity().setX(-300);
 		}
-		
-
-	
-		
+			//Resets several Variables...
 		bulletSpawned = false;
 		bulletSpawnTime = 0;
 		System.out.println("Reset");
-		bulletX=200000;
-		bulletY=200000;
+		bulletX = 200000;
+		bulletY = 200000;
 		bullet.renderMob(bulletX, bulletY);
-		
-		playerX=startPosX;
-		playerY=startPosY;
-			
+		playerMob.setHealth(20);
+		playerMob.setAlive(true);
+		playerX = startPosX;
+		playerY = startPosY;
+		currentMapIndex = 0;
 	}
 
 	/**
