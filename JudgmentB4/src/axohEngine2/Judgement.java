@@ -58,8 +58,8 @@ public class Judgement extends Game {
 	//CENTERX/CENTERY - Center of the game window's x/y
 	static int SCREENWIDTH = 1600;
 	static int SCREENHEIGHT = 900;
-	static int CENTERX = SCREENWIDTH / 2;
-	static int CENTERY = SCREENHEIGHT / 2;
+	public static int CENTERX = SCREENWIDTH / 2;
+	public static int CENTERY = SCREENHEIGHT / 2;
 
 	
 	//--------- Miscelaneous ---------
@@ -87,8 +87,8 @@ public class Judgement extends Game {
 	private int scale;
 	private int mapX;
 	private int mapY;
-	private int playerX;
-	private int playerY;
+	public static int playerX;
+	public static int playerY;
 	private int startPosX;
 	private int startPosY;
 	private int playerSpeed;
@@ -159,21 +159,16 @@ public class Judgement extends Game {
 	private int testNPCSpawnTime; //temp
 	private int testNPCLocationX; //testing
 	private int testNPCLocationY; //temporary (Testing)
-	Mob testingNPC;	//TEMP
+	Mob mobNPC;	//TEMP
 	
 	
 	//Projectile Variables
 	
-	
 	boolean arrow, bulletSpawned; //MODIFICATION
 	private int bulletLifeSpan=50;
-	private int bulletX;
-	private int bulletY;
-	private int bulletXDelta;
-	private int bulletYDelta;
 	private int bulletSpeed =7; 
 	
-	private List<Bullet> bulletsArr = new ArrayList<>();
+	private List<Mob> bulletsArr = new ArrayList<>();
 	
 	//Audio variables
 	public static AudioStream titleMusic;
@@ -221,6 +216,7 @@ public class Judgement extends Game {
 		mapY = 32;
 		scale = 4;
 		playerSpeed = 3;
+		
 		
 			try {
 				Audio.loadMuted();
@@ -273,11 +269,12 @@ public class Judgement extends Game {
 		sprites().add(playerMob);
 
 		//Testing Purposes Only
-		testingNPC = new Mob(this, graphics(), bullets, 2, TYPE.CHASE, "testingNPC", false);
+		mobNPC = new Mob(this, graphics(), mainCharacter, 40, TYPE.ENEMY, "testingNPC", false);
+		mobNPC.setHealth(5);
+		sprites().add(mobNPC);
 
 		
 		//Projectile
-		bulletX=bulletY=20000;
 		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);
 		sprites().add(bullet);
 		
@@ -305,6 +302,7 @@ public class Judgement extends Game {
 		
 		
 		requestFocus(); //Make sure the game is focused on
+		reset();
 		start(); //Start the game loop
 	}
 	
@@ -360,40 +358,37 @@ public class Judgement extends Game {
 			
 			if(testNPCSpawnTime == 0) {	//This small section was added
 				testNPCSpawnTime++;
-				testNPCLocationX = CENTERX - playerX+120;
+				testNPCLocationX = CENTERX - playerX+220;
 				testNPCLocationY = CENTERY - playerY-250;
-				testingNPC.setSpeed(1);
+				mobNPC.setSpeed(1);
 			} else {
-				testingNPC.renderMob(testNPCLocationX, testNPCLocationY);
+				if(mobNPC.alive())
+				mobNPC.renderMob(testNPCLocationX, testNPCLocationY);
+				
 			}
 
-			testingNPC.chase(playerLocationX, playerLocationY);
+			mobNPC.chase(playerLocationX, playerLocationY);
 			
 			
-			//Spawning and moving the bullet
-			if (bulletSpawned == true && bulletSpawnTime < bulletLifeSpan + 1) {
-				if (bulletSpawnTime == 0) {
-					//bulletsArr.add(new Bullet(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false));
-					bulletX = CENTERX - playerX+60;
-					bulletY = CENTERY - playerY + 50;
-				}
-				bulletX = bulletX - bulletXDelta; //Moves the bullet
-				bulletY = bulletY - bulletYDelta; //Bullet delta x and y are determined by which arrow key was pressed
-				bullet.renderMob(bulletX, bulletY); //Renders the bullet
-				bulletSpawnTime++;			
-				// bullet.moveBullet(-1, 0);
-				// bulletsArr.stream().forEach(bullet -> bullet.drawBullet(g));
-			}
+
 			
-			if(bulletSpawnTime == bulletLifeSpan) {
-				//bullet.setLoc(playerX, playerY); Doesn't work
-				bulletSpawned = false;
-				bulletSpawnTime = 0;
-				System.out.println("Reset");
-				bulletX=200000;
-				bulletY=200000;
-				bullet.renderMob(bulletX, bulletY);
-			}
+			
+
+			bulletsArr.stream().forEach(Mob -> Mob.renderMob(Mob.bulletX,Mob.bulletY));
+			bulletsArr.stream().forEach(Mob -> Mob.updateMob());
+			
+			
+			 for(int i =0; i<bulletsArr.size()-1; i++){
+			 
+			       if(bulletsArr.get(i).alive()==false){
+			          bulletsArr.remove(i);
+			          System.out.println("remove");
+			       }
+			 }
+			if(bulletsArr.size()>300)
+				bulletsArr.removeAll(bulletsArr);
+			
+			
 			
 			//Drawing the health bar
 			g2d.drawImage(healthBarOutline.getImage(), 1000, 700, 300, -600, this.rootPane);
@@ -493,6 +488,21 @@ public class Judgement extends Game {
 			shiftX = 0;
 			shiftY = botOverlap;
 		}
+		
+		
+		if(spr1.spriteType() == TYPE.BULLET && spr2.spriteType() == TYPE.ENEMY) {
+			spr1.setBounds(0, 0, 0);
+			spr1.setSpriteSize(0);
+			((Mob) spr1).setAlive(false);
+			Audio.PlaySound(bulletColSnd);
+			((Mob) spr2).damageMob(1);
+			System.out.println("enemy Collision - "+mobNPC.getHealth());
+			if(((Mob) spr2).getHealth()<1){
+				((Mob) spr2).setAlive(false);
+				((Mob) spr2).setHealth(5);
+			}
+			
+		}
 
 		//Handling very specific collisions
 		if(spr1.spriteType() == TYPE.PLAYER && state == STATE.GAME){
@@ -500,11 +510,8 @@ public class Judgement extends Game {
 			if(spr2.spriteType()==TYPE.ENEMY){
 				((Mob) spr2).stop();
 				//added player damage
-				//playerMob.damageMob(1);
-			
-			
-			
-			
+				playerMob.damageMob(1);
+				
 			//This piece of code is commented out because I still need the capability of getting a tile from an xand y position
 			/*if(((Mob) spr1).attacking() && currentOverlay.getFrontTile((Mob) spr1, playerX, playerY, CENTERX, CENTERY).getBounds().intersects(spr2.getBounds())){
 				((Mob) spr2).takeDamage(25);
@@ -548,8 +555,9 @@ public class Judgement extends Game {
 		if(spr.spriteType() == TYPE.BULLET) {
 			
 			System.out.println("bullet COllision");
-			bulletX=200000;
-			bulletY=200000;
+			spr.setBounds(0, 0, 0);
+			spr.setSpriteSize(0);
+			((Mob) spr).setAlive(false);
 			Audio.PlaySound(bulletColSnd);
 		}
 		else{
@@ -586,8 +594,11 @@ public class Judgement extends Game {
 					tiles().clear();
 					sprites().clear();
 					sprites().add(playerMob);
+					sprites().add(mobNPC);
+					mobNPC.setAlive(true);
 					sprites().add(bullet);
 					sprites().add(titleArrow);
+					bulletsArr.removeAll(bulletsArr);
 					//Get the new map
 					
 					currentMapIndex=currentMapIndex+1;
@@ -604,8 +615,6 @@ public class Judgement extends Game {
 					//playerX = tile.event().getNewX();
 					//moves the bullet off screen
 					playerY = tile.event().getNewY();
-					bulletX=200000;
-					bulletY=200000;
 				}	
 			} //end warp
 			//Item exchange event
@@ -965,37 +974,28 @@ public class Judgement extends Game {
 	        	break;
 	        	
 	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
-		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
-		    		attackWait = 30;
+		    	if(attackWait <= 0 && state==STATE.GAME) {
+		    		attackWait = 5;
 		    		arrow = true;
-		    		bulletXDelta=0; //Resets the bullet x delta
-		    		bulletYDelta=-bulletSpeed; //changes the bullet y delta
-		    						/////// Does the same for each direction
 		    	}
 	            break;
 		    } case KeyEvent.VK_UP: {
 		    	System.out.println(currentMapIndex);
-		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
-		    		attackWait = 30;
+		    	if(attackWait <= 0 && state==STATE.GAME) {
+		    		attackWait = 5;
 		    		arrow = true;
-		    		bulletXDelta=0;
-		    		bulletYDelta=bulletSpeed;
 		    	}
 	            break;
 		    } case KeyEvent.VK_RIGHT: {
-		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
-		    		attackWait = 30;
+		    	if(attackWait <= 0 && state==STATE.GAME) {
+		    		attackWait = 5;
 		    		arrow = true;
-		    		bulletXDelta=-bulletSpeed;
-		    		bulletYDelta=0;
 		    	}
 	            break;
 		    } case KeyEvent.VK_LEFT: {
-		    	if(attackWait <= 0 && bulletSpawned == false && state==STATE.GAME) {
-		    		attackWait = 30;
+		    	if(attackWait <= 0  && state==STATE.GAME) {
+		    		attackWait = 5;
 		    		arrow = true;
-		    		bulletXDelta=bulletSpeed;
-		    		bulletYDelta=0;
 		    	}
 	            break;	 //MODIFICATION_END
 	        	
@@ -1031,6 +1031,8 @@ public class Judgement extends Game {
         		arrow = false;
 				bulletSpawned = true;
 				Audio.PlaySound(shootSnd);
+				bulletsArr.add(new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "asBullet", false,-5,0));
+				sprites().add(bulletsArr.get(bulletsArr.size()-1));
         	}
             break;
         } case KeyEvent.VK_RIGHT: {
@@ -1038,6 +1040,8 @@ public class Judgement extends Game {
         		arrow = false;
 				bulletSpawned = true;
 				Audio.PlaySound(shootSnd);
+				bulletsArr.add(new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "asBullet", false,5,0));
+				sprites().add(bulletsArr.get(bulletsArr.size()-1));
         	}
             break;
         } case KeyEvent.VK_UP: {
@@ -1045,6 +1049,8 @@ public class Judgement extends Game {
         		arrow = false;
 				bulletSpawned = true;
 				Audio.PlaySound(shootSnd);
+				bulletsArr.add(new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "asBullet", false, 0,-5));
+				sprites().add(bulletsArr.get(bulletsArr.size()-1));
         	}
             break;
         } case KeyEvent.VK_DOWN: {
@@ -1052,6 +1058,8 @@ public class Judgement extends Game {
         		arrow = false;
 				bulletSpawned = true;
 				Audio.PlaySound(shootSnd);
+				bulletsArr.add(new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "asBullet", false, 0,5));
+				sprites().add(bulletsArr.get(bulletsArr.size()-1));
         	}
             break;
         }						
@@ -1095,9 +1103,6 @@ public class Judgement extends Game {
 		bulletSpawned = false;
 		bulletSpawnTime = 0;
 		System.out.println("Reset");
-		bulletX = 200000;
-		bulletY = 200000;
-		bullet.renderMob(bulletX, bulletY);
 		playerMob.setHealth(20);
 		playerMob.setAlive(true);
 		playerX = startPosX;

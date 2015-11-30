@@ -20,6 +20,7 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
+import axohEngine2.Judgement;
 import axohEngine2.project.TYPE;
 
 public class Mob extends AnimatedSprite{
@@ -70,6 +71,10 @@ public class Mob extends AnimatedSprite{
 	//Graphics and Window objects the mob needs for display
 	private Graphics2D g2d;
 	private JFrame frame;
+	public int bulletX;
+	public int bulletY;
+	private int bulletXDelta;
+	private int bulletYDelta;
 	
 	/************************************************************************
 	 * Constructor
@@ -95,6 +100,35 @@ public class Mob extends AnimatedSprite{
 		setSolid(true);
 		setAlive(true);
 		setSpriteType(ai);
+		
+		//only used for bullets
+		bulletXDelta =3;
+		bulletYDelta = 0;
+		
+		bulletX = Judgement.CENTERX - Judgement.playerX+60;
+		bulletY = Judgement.CENTERY - Judgement.playerY+60;
+	}
+	
+	public Mob(JFrame frame, Graphics2D g2d, SpriteSheet sheet, int spriteNumber, TYPE ai, String name, boolean hostility, int newBulletXDelta, int newBulletYDelta) {
+		super(frame, g2d, sheet, spriteNumber, name);
+		attacks = new LinkedList<Attack>();
+		this.frame = frame;
+		this.g2d = g2d;
+		this.ai = ai;
+		
+		hostile = hostility;
+		setName(name);
+		health = 0;
+		setSolid(true);
+		setAlive(true);
+		setSpriteType(ai);
+		
+		//only used for bullets
+		bulletXDelta =newBulletXDelta;
+		bulletYDelta = newBulletYDelta;
+		
+		bulletX = Judgement.CENTERX - Judgement.playerX+60;
+		bulletY = Judgement.CENTERY - Judgement.playerY+60;
 	}
 	
 	//Getters for name and ai type
@@ -140,6 +174,11 @@ public class Mob extends AnimatedSprite{
 		}
 		if(ai == TYPE.SEARCH) {
 			search();
+		}
+		if(ai == TYPE.BULLET){
+			
+			bulletX=bulletX+bulletXDelta;
+			bulletY=bulletY+bulletYDelta;
 		}
 		//if(ai == TYPE.CHASE) {
 		//	chase();
@@ -228,25 +267,6 @@ public class Mob extends AnimatedSprite{
 			yy -= speed;
 		} else if((getYLoc() - yLocation) < 0){
 			yy += speed;
-		}
-	}
-	
-	/***************************************************************
-	 * Method used to change a bullet's position.
-	 * 
-	 * @param xa - Int movement in pixels on the x axis
-	 * @param ya - Int movement in pixels on the y axis
-	 ****************************************************************/
-	public void moveBullet(int xa, int ya) { 
-		if(xa < 0) { //left
-			xx += xa; 
-		} else if(xa > 0) { //right
-			xx += xa; 
-		}
-		if(ya < 0) {  //up
-			yy += ya;
-		} else if(ya > 0) { //down
-			yy += ya;
 		}
 	}	
 	
