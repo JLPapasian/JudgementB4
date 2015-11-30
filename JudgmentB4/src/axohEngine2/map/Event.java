@@ -48,17 +48,13 @@ public class Event {
 	}
 	
 	/************************************************************
-	 * Set up a warp event 
-	 * 
-	 * @param mapName - A String detailing the name of the map which was set in the map Database
-	 * @param overlayName - Same as mapName
-	 * @param x - player x Int
+	 * Set up a warp event
 	 * @param y - player y Int
 	 *************************************************************/
-	public void setWarp(int x, int y) {
+	public void setWarp(int y) {
 		//_mapName = mapName;
 		//_overlayName = overlayName;
-		newX = x;
+		//newX = x;
 		newY = y;
 	}
 	

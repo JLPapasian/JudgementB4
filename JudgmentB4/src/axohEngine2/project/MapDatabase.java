@@ -65,7 +65,7 @@ public class MapDatabase {
 	
 	//Array of maps
 	public Map[] maps;
-	public Tile[][] mapTiles = new Tile[200][169];
+	public Tile[][] mapTiles = new Tile[200][676];
 	
 	
 	//Julian changes to allow reading from a file
@@ -120,7 +120,7 @@ public class MapDatabase {
 			if (x==10)
 			{
 				mapFromFile("mapEnd.txt", mapTiles[x]);
-				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map5");
+				maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
 			}
 			
 			else{
@@ -131,20 +131,20 @@ public class MapDatabase {
 				lastRandom=curRandom;
 		
 				mapFromFile("map"+(curRandom)+".txt", mapTiles[x]);
-				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map");
+				maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
 				warp[x] = new Event("ToNext", TYPE.WARP);
-				warp[x] .setWarp(16, -300);
-				maps[x].accessTile(8).addEvent(warp[x]);
+				warp[x] .setWarp(-300);
+				maps[x].accessTile(13).addEvent(warp[x]);
 			}
 		}
 		
 	//Starting zone initialization	
 		
 		mapFromFile("mapStart.txt", mapTiles[0]);
-		maps[0] =  new Map(frame, g2d, mapTiles[0], 13, 13, "map5");
+		maps[0] =  new Map(frame, g2d, mapTiles[0], 26, 26, "map");
 		warp[0] = new Event("ToNext", TYPE.WARP);
-		warp[0] .setWarp(16, -300);
-		maps[0].accessTile(8).addEvent(warp[0]);
+		warp[0] .setWarp(-300);
+		maps[0].accessTile(13).addEvent(warp[0]);
 		
 
 		
@@ -197,8 +197,9 @@ public class MapDatabase {
 			File currentMap = new File ("maps/"+fileName); //Uses the string to point to the actual file (/maps is where the files are held)
 			fileInput = new Scanner(currentMap); //creates a scanner which will be used to iterate through the file
 
-					for (cur = 0; cur < 169; cur++) { //currently, all our maps are a fixed size, 13 x 13.. 169 tiles total
-						nextTile = fileInput.next(); //grabs the next character
+					for (cur = 0; cur < 676; cur++) { //currently, all our maps are a fixed size, 13 x 13.. 169 tiles total
+						if(fileInput.hasNext()){
+								nextTile = fileInput.next(); //grabs the next character
 						
 						//Uses a switch statement to decide what tile type will be placed 
 						 switch (nextTile) {
@@ -215,7 +216,11 @@ public class MapDatabase {
 				        	 map[cur] = g ;
 				             break;
 				         //other tiles can be added to this statement as neccesary
-				 }
+
+				            default:
+				            	break;
+						 }
+					}
 			}
 
 			fileInput.close();				//Closes the file.

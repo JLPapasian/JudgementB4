@@ -279,7 +279,7 @@ public class Judgement extends Game {
 		sprites().add(bullet);
 		
 		
-		mapBase = new MapDatabase(this, graphics(), scale);
+		mapBase = new MapDatabase(this, graphics(), 0);
 		//Get Map from the database
 	
 		currentMap = mapBase.getMap(currentMapIndex);
@@ -1089,7 +1089,7 @@ public class Judgement extends Game {
 	
 		Audio.StartTitleMusic("2.au");  //restarts title music. Checks for mute within Audio.java
 		tiles().clear(); //Clears the current tiles
-		mapBase = new MapDatabase(this, graphics(), scale); //Builds a new map database
+		mapBase = new MapDatabase(this, graphics(), scale/2); //Builds a new map database
 		currentMap = mapBase.getMap(0); //Sets the current map to 0  The first map
 
 		// Add the tiles from the map to be updated each system cycle
