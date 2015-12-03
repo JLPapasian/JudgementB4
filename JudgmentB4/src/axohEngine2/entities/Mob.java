@@ -57,6 +57,10 @@ public class Mob extends AnimatedSprite{
 	private boolean wasUp = false;
 	private boolean wasDown = false;
 
+	
+	private int timePassed; //added for the amount of time the NPC has been moving horizontally/vertically
+	private int maxTimePass; //added
+	
 	//moveDir - Direction the mob was moving
 	//direction - The direction the Mob is facing
 	//randomDir - The random choice of a direction used in random movements
@@ -141,6 +145,18 @@ public class Mob extends AnimatedSprite{
 	public void setName(String name) { super._name = name; }
 	public void setSpeed(int speed) { this.speed = speed; }
 	
+	public DIRECTION getDirection(){
+		return direction;
+	}
+	public void setDirection(DIRECTION newDir){
+		direction = newDir;
+	}
+	public int getMaxTimePass(){
+		return maxTimePass;
+	}
+	public void setMaxTimePass(int n){
+		maxTimePass = n;
+	}
 	/**************************************************
 	 * Set all of the movement related variables to whatever nothing is
 	 **************************************************/
@@ -180,16 +196,34 @@ public class Mob extends AnimatedSprite{
 			bulletX=bulletX+bulletXDelta;
 			bulletY=bulletY+bulletYDelta;
 		}
-		//if(ai == TYPE.CHASE) {
-		//	chase();
-		//}
-		//if(ai == TYPE.BULLET) {
-		//	flyingBullet();
-		//}
-		
-		//if(hostile && health < 0) {
-		//	setAlive(false);
-		//}
+		if(ai == TYPE.ENEMY) {
+			if(direction == DIRECTION.RIGHT){
+				xx += speed;
+				timePassed++;
+			} else if(direction == DIRECTION.LEFT){
+				xx -= speed;
+				timePassed++;
+			} else if(direction == DIRECTION.UP){
+				yy -= speed;
+				timePassed++;
+			} else if(direction == DIRECTION.DOWN){
+				yy += speed;
+				timePassed++;
+			}
+			
+			if(timePassed == maxTimePass){
+				timePassed = 0;
+				if(direction == DIRECTION.RIGHT){
+					direction = DIRECTION.LEFT;
+				} else if(direction == DIRECTION.LEFT){
+					direction = DIRECTION.RIGHT;
+				} else if(direction == DIRECTION.UP){
+					direction = DIRECTION.DOWN;
+				} else if(direction == DIRECTION.DOWN){
+					direction = DIRECTION.UP;
+			}
+			}
+		}
 	}
 	
 	/***************************************************************
@@ -268,7 +302,7 @@ public class Mob extends AnimatedSprite{
 		} else if((getYLoc() - yLocation) < 0){
 			yy += speed;
 		}
-	}	
+	}
 	
 	/***************************************************************
 	 * Method used to change a mobs position by the xa and ya parameters.
