@@ -21,6 +21,7 @@ package axohEngine2.project;
 
 //Imports
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
 import java.util.Random;
@@ -37,7 +38,7 @@ public class InGameMenu {
 	 **************/
 	//_background - Image used to display the menu background
 	private ImageEntity _background;
-	
+
 	//_option - An enum which holds the choice made at certain times
 	//SCREENWIDTH, SCREENHEIGHT - width and height of the JFrame window
 	//random - A random number generator
@@ -45,7 +46,7 @@ public class InGameMenu {
 	private int SCREENWIDTH;
 	private int SCREENHEIGHT;
 	private Random random = new Random();
-	
+
 	//items - A list of items contained in the menu
 	//equipment - A list of equipment contained in the menu
 	//counts - An array of totals of items grouped together currently in inventory
@@ -64,7 +65,7 @@ public class InGameMenu {
 	private int sectionLoc;
 	private int totalItems;
 	private int totalEquipment;
-	
+
 	//Starting stat variables
 	private int level = 1;
 	private int maxHealth = 35;
@@ -75,10 +76,10 @@ public class InGameMenu {
 	private int experience;
 	private int nextLevel = 20;
 	private int nextExp = 25;
-	
+
 	private String muteToggle;
-	
-	
+
+
 	/********************************************************************************************
 	 * The Items algorithms need an explanation, starting with:
 	 *  
@@ -129,7 +130,7 @@ public class InGameMenu {
 	 *  correct item to be managed
 	 *  
 	 ********************************************************************************************/
-	
+
 	/*****************************************************************
 	 * Constructor
 	 * Change count[] and shownItem[] size to adjust for even more items in game
@@ -148,7 +149,7 @@ public class InGameMenu {
 		shownItems = new Item[100];
 		shownEquipment = new Item[100];
 	}
-	
+
 	/*******************************************************************
 	 * Update some variables based on choices elsewhere in the engine
 	 * 
@@ -162,7 +163,7 @@ public class InGameMenu {
 		currHealth = health;
 		levelUp();
 	}
-	
+
 	/*************************************************************
 	 * Add an item in to the menu backpack
 	 * 
@@ -173,14 +174,14 @@ public class InGameMenu {
 		countItems();
 		setItems();
 	}
-	
+
 	//Reference addItem()
 	public void addEquipment(Item item) {
 		equipment.add(item);
 		countItems();
 		setItems();
 	}
-	
+
 	//Each new item and equipment for the game needs to be added to what needs to be counted
 	//Reference blue code block above methods
 	private void countItems() {
@@ -192,10 +193,10 @@ public class InGameMenu {
 			if(items.get(i).getName().equals("Mega Potion")) counts[1]++;
 		}
 		for(int i = 0; i < equipment.size(); i++){ //add equipment to be counted here.
-			
+
 		}
 	}
-	
+
 	//Each new item will need to be added here as well.
 	//Reference blue code block above methods
 	private void setItems() {
@@ -206,7 +207,7 @@ public class InGameMenu {
 			if(items.get(i).getName() == "Mega Potion"){ shownItems[1] = items.get(i); }
 		}
 		for(int i = 0; i < equipment.size(); i++){ //Set items for showEquipment[] here
-			
+
 		}
 		for(int i = 0; i < shownEquipment.length; i++){
 			if(shownEquipment[i] == null) continue;
@@ -217,30 +218,38 @@ public class InGameMenu {
 			totalItems++;
 		}
 	}
-	
+
 	//Reference blue code block above methods
 	public void render(JFrame frame, Graphics2D g2d, int inX, int inY) {
 		g2d.drawImage(_background.getImage(), 0, 0, SCREENWIDTH, SCREENHEIGHT, frame);
 		g2d.setColor(Color.BLACK);
 		g2d.drawString("Toggle Audio", 90, 170);
-		g2d.drawString("Option", 120, 275);
+		g2d.drawString("Help", 120, 275);
 		g2d.drawString("Exit Menu", 120, 385);
 		g2d.drawString("Quit To Title", 120, 490);
-		//g2d.drawString("Exit Menu", 120, 600);
 		g2d.setColor(Color.WHITE);
 		g2d.drawRect(inX, inY, 435, 104);
-		
-		
-		if(_option == OPTION.EQUIPMENT){
+
+
+		if(_option == OPTION.HELP){
 			g2d.setColor(Color.BLACK);
-			g2d.drawString("Stats", 900, 200);
+			g2d.drawString("Help:", 900, 200);
+			g2d.setFont(new Font("Georgia", Font.PLAIN, 45));
+			g2d.drawString("Controls: AWSD for movement", 590,375);
+			g2d.setFont(new Font("Georgia", Font.PLAIN, 45));
+			g2d.drawString("Use arrow keys to fire bullets", 590, 475);
+			g2d.setFont(new Font("Georgia", Font.PLAIN, 45));
+			g2d.drawString("Main objective: defeat the enemys and survive.", 590, 575);
+
+
 		}
-		
+
 		if(_option == OPTION.MAGIC){
 			g2d.setColor(Color.BLACK);
 			g2d.drawString("Options", 880, 200);
+
 		}
-		
+
 		if(_option == OPTION.STATUS){
 			g2d.setColor(Color.BLACK);
 			g2d.drawString("Status", 920, 200);
@@ -250,12 +259,12 @@ public class InGameMenu {
 			g2d.drawString("Health: " + currHealth, 600, 675);
 			g2d.drawString("Experience: " + experience + " / " + nextLevel, 600, 775);
 		}
-		
+
 		if(_option == OPTION.SAVE){
 			g2d.setColor(Color.BLACK);
 			g2d.drawString("Save Game", 880, 200);
 		}
-		
+
 		if(_option == OPTION.TOGGLEAUDIO){
 			g2d.setColor(Color.BLACK);
 			if(Audio.getMuted())
@@ -265,7 +274,7 @@ public class InGameMenu {
 			g2d.drawString(muteToggle, 880, 200);
 		}
 	}
-	
+
 	//Reference blue code block above methods
 	public void renderItems(JFrame frame, Graphics2D g2d, Item[] array, LinkedList<Item> list) {
 		int start = getStart(itemLocation, array);
@@ -286,13 +295,13 @@ public class InGameMenu {
 			y++;
 		}
 	}
-	
+
 	//What needs to be done to level a character up, this is checked for at every update.
 	//Edit this section to change how the stats change each time a player levels up
 	private void levelUp(){
 		if(experience >= nextLevel){
 			level++;
-			
+
 			nextLevel = nextExp;
 			if(level <= 25) nextExp = nextExp + 20 + random.nextInt(level + 10);
 			if(level > 25 && level <= 50) nextExp = nextExp + 40 + random.nextInt(level + 20);
@@ -316,10 +325,10 @@ public class InGameMenu {
 			if(level % 6 == 6) defense += 2 + random.nextInt(3);
 		}
 	}
-	
+
 	//Add an int, exp to the total in the backpack
 	public void getExp(int exp) { experience += exp; }
-	
+
 	/*********************************************************
 	 * Return the starting location after a certain amount of items are counted
 	 * 
@@ -339,7 +348,7 @@ public class InGameMenu {
 		}
 		return 0;
 	}
-	
+
 	//Move variables around for correct rendering based on keyboard actions
 	public void loadNextItems() {
 		int start = 0;
@@ -351,7 +360,7 @@ public class InGameMenu {
 			}
 		}
 	}
-	
+
 	//Reference loadNextEquipment()
 	public void loadNextEquipment() {
 		int start = 0;
@@ -363,28 +372,28 @@ public class InGameMenu {
 			}
 		}
 	}
-	
+
 	//This works with items and equipment
 	//Move back up the list of items to show already passed by items or equipment
 	public void loadOldItems() {
 		if(itemLocation > 0) itemLocation--;
 	}
-	
+
 	//Getters for totalItems and totalEquipment
 	public int getTotalItems() { return totalItems; }
 	public int getTotalEquipment() { return totalEquipment; }
-	
+
 	//Setter for itemLocation - Reference blue code block above methods for description of variable
 	public void setItemLoc(int location) { itemLocation = location; }
-	
+
 	//Remember to update the item check under Item.java when adding a new group of items. All are handled seperately.
 	//This method uses up an item based on its characteristics
 	public void useItem() { 
 		for(int i = 0; i < items.size(); i++){
 			if(shownItems[itemLocation + sectionLoc].getName() == items.get(i).getName()) {
-				
+
 				if(items.get(i).checkItem() == 1); //TODO: What to do with key items?
-				
+
 				if(items.get(i).checkItem() == 2) {
 					if(currHealth + items.get(i).getHealth() >= maxHealth){
 						currHealth = maxHealth;
@@ -395,7 +404,7 @@ public class InGameMenu {
 					}
 					currHealth += items.get(i).getHealth();
 				} //Heal Item
-				
+
 				if(items.get(i).checkItem() == 3); //TODO: Attack Item
 				items.remove(i);
 				countItems();
@@ -404,12 +413,12 @@ public class InGameMenu {
 			}
 		}
 	}
-	
+
 	//Getters for currently selected item number, health and magic
 	public int checkCount() { return counts[itemLocation + sectionLoc]; }
 	public int getHealth() { return currHealth; }
 	public int getMagic() { return magic; }
-	
+
 	//Setter for magic stat
 	public void setmagic(int magic) { this.magic = magic; }
 }

@@ -53,10 +53,10 @@ public class Audio {
 	
 	public static void StopTitleMusic()
 	{
-		if(!muted){
+		//if(!muted){
 	
 		AudioPlayer.player.stop(Judgement.titleMusic);			    
-			}
+		//	}
 	}
 	
 	

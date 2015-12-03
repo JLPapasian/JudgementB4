@@ -93,7 +93,7 @@ public class MapDatabase {
 		
 		
 		//Set up spriteSheets
-		misc = new SpriteSheet("/textures/environments/environments.png", 16, 16, 16, scale);
+		misc = new SpriteSheet("/textures/environments/environments1.png", 16, 16, 16, scale);
 		buildings = new SpriteSheet("/textures/environments/4x4buildings.png", 4, 4, 64, scale);
 		environment32 = new SpriteSheet("/textures/environments/32SizeEnvironment.png", 8, 8, 32,scale);
 		extras2 = new SpriteSheet("/textures/extras/extras2.png", 16, 16, 16, scale);
@@ -115,7 +115,7 @@ public class MapDatabase {
 		Random rn = new Random();
 		lastRandom = rn.nextInt(numMapFiles);
 		
-		for (int x=1; x<=10; x++){
+		for (int x=0; x<=10; x++){
 			
 			if (x==10)
 			{
@@ -128,63 +128,27 @@ public class MapDatabase {
 				while(curRandom == lastRandom) //Checks to see if the new random is the same as the last random
 					curRandom = rn.nextInt(numMapFiles);  //if it is, it gets a new random
 				
-				lastRandom=curRandom;
-		
-				mapFromFile("map"+(curRandom)+".txt", mapTiles[x]);
-				maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
+				if(x==0){
+					mapFromFile("mapStart.txt", mapTiles[x]);
+					maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
+				}
+				else
+				{
+					lastRandom=curRandom;
+					mapFromFile("map"+(curRandom)+".txt", mapTiles[x]);
+					maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
+				}
 				warp[x] = new Event("ToNext", TYPE.WARP);
 				warp[x] .setWarp(-300);
+				maps[x].accessTile(12).addEvent(warp[x]);
 				maps[x].accessTile(13).addEvent(warp[x]);
 			}
 		}
 		
-	//Starting zone initialization	
-		
-		mapFromFile("mapStart.txt", mapTiles[0]);
-		maps[0] =  new Map(frame, g2d, mapTiles[0], 26, 26, "map");
-		warp[0] = new Event("ToNext", TYPE.WARP);
-		warp[0] .setWarp(-300);
-		maps[0].accessTile(13).addEvent(warp[0]);
-		
-
-		
-		
-		//Put together all items (Dont forget to add these to the count and setup methods in inGameMenu.java)
-	//	potion = new Item(frame, g2d, extras2, 2, "Potion", false);
-	//	potion.setHealItem(25, false, "");
-	//	mpotion = new Item(frame, g2d, extras2, 2, "Mega Potion", false);
-	//	potion.setHealItem(50, false, "");
-		
-		
-		//Item events
-	//	getPotion = new Event("getPotion", TYPE.ITEM);
-	//	getPotion.setItem(potion);
-	//	getMpotion = new Event("getMpotion", TYPE.ITEM);
-	//	getMpotion.setItem(mpotion);
-		
-		//Add the events to their specific tiles and maps
-		//houses.accessTile(5).addEvent(warp1);
-		//cityO.accessTile(92).addEvent(getPotion);
-		//cityO.accessTile(242).addEvent(getPotion);
-		//cityO.accessTile(328).addEvent(getPotion);
-		//cityO.accessTile(327).addEvent(getMpotion);
-		//cityO.accessTile(326).addEvent(getMpotion);
-	    //cityO.accessTile(325).addEvent(getMpotion);
-		//cityO.accessTile(93).addEvent(getMpotion);
-		//cityO.accessTile(94).addEvent(getMpotion);
-		//cityO.accessTile(95).addEvent(getMpotion);
-		//cityO.accessTile(96).addEvent(getMpotion);
-		
 		//Set up Monsters and NPCs
 		//npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.ENEMY, "npc", false);
-		//npc.setMultBounds(6, 50, 92, 37, 88, 62, 92, 62, 96);
-		//npc.setMoveAnim(32, 48, 40, 56, 3, 8);
-		//npc.setHealth(60);
-		
-		//Add the mobs to their tile home
 		//maps[0].accessTile(16).addMob(npc);
 	}
-	
 	
 	//New method
 	//Points to a filename (by it's name in the form of a string) 

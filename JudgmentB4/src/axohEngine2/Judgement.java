@@ -105,7 +105,6 @@ public class Judgement extends Game {
 	private MapDatabase mapBase;
 	private int inputWait = 5;
 	private int attackWait = 0; //Modification
-	private int bulletSpawnTime = 0; //Modification
 	private boolean confirmUse = false;
 	
 	private int currentMapIndex =0;
@@ -124,9 +123,8 @@ public class Judgement extends Game {
 	private int titleX = 530, titleY = 610;
 	private int titleX2 = 340, titleY2 = 310;
 	private int titleLocation;
-	private String currentFile;
-	private int wait;
-	private boolean waitOn = false;
+	private int wait=20;
+	private boolean waitOn = true;
 	
 	private int escapeDown = 0;
 	
@@ -165,8 +163,7 @@ public class Judgement extends Game {
 	//Projectile Variables
 	
 	boolean arrow, bulletSpawned; //MODIFICATION
-	private int bulletLifeSpan=50;
-	private int bulletSpeed =7; 
+
 	
 	private List<Mob> bulletsArr = new ArrayList<>();
 	
@@ -223,10 +220,6 @@ public class Judgement extends Game {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		
-		Audio.StartTitleMusic("2.au");
-		
-
 		
 	
 		
@@ -317,7 +310,7 @@ public class Judgement extends Game {
 		if(state == STATE.TITLE) title.update(option, titleLocation); //Title Menu update
 		if(state == STATE.INGAMEMENU) inMenu.update(option, sectionLoc, playerMob.health()); //In Game Menu update
 		updateData(currentMap, currentMap, playerX, playerY); //Update the current file data for saving later
-//System.out.println(frameRate()); //Print the current framerate to the console
+		//System.out.println(frameRate()); //Print the current framerate to the console
 		if(waitOn) wait--;
 	}
 	
@@ -344,9 +337,6 @@ public class Judgement extends Game {
 			currentMap.render(this, g2d, mapX, mapY);
 			//currentOverlay.render(this, g2d, mapX, mapY);
 			playerMob.renderMob(CENTERX - playerX, CENTERY - playerY);
-			
-			Audio.StopTitleMusic(); //Stops the music clip
-			
 			
 
 
@@ -382,7 +372,6 @@ public class Judgement extends Game {
 			 
 			       if(bulletsArr.get(i).alive()==false){
 			          bulletsArr.remove(i);
-			          System.out.println("remove");
 			       }
 			 }
 			if(bulletsArr.size()>300)
@@ -490,13 +479,13 @@ public class Judgement extends Game {
 		}
 		
 		
-		if(spr1.spriteType() == TYPE.BULLET && spr2.spriteType() == TYPE.ENEMY) {
+		if(spr1.spriteType() == TYPE.BULLET && spr1.alive()==true && spr2.spriteType() == TYPE.ENEMY && state == STATE.GAME) {
 			spr1.setBounds(0, 0, 0);
 			spr1.setSpriteSize(0);
 			((Mob) spr1).setAlive(false);
 			Audio.PlaySound(bulletColSnd);
 			((Mob) spr2).damageMob(1);
-			System.out.println("enemy Collision - "+mobNPC.getHealth());
+			//System.out.println("enemy Collision - "+mobNPC.getHealth()); //for debugging
 			if(((Mob) spr2).getHealth()<1){
 				((Mob) spr2).setAlive(false);
 				((Mob) spr2).setHealth(5);
@@ -506,27 +495,25 @@ public class Judgement extends Game {
 
 		//Handling very specific collisions
 		if(spr1.spriteType() == TYPE.PLAYER && state == STATE.GAME){
-			
+
 			if(spr2.spriteType()==TYPE.ENEMY){
 				((Mob) spr2).stop();
 				//added player damage
-				playerMob.damageMob(1);
+				if(wait<0&&spr2.alive()==true){
+					wait=10;
+					playerMob.damageMob(1);
+				}
 				
-			//This piece of code is commented out because I still need the capability of getting a tile from an xand y position
-			/*if(((Mob) spr1).attacking() && currentOverlay.getFrontTile((Mob) spr1, playerX, playerY, CENTERX, CENTERY).getBounds().intersects(spr2.getBounds())){
-				((Mob) spr2).takeDamage(25);
-				//TODO: inside of take damage should be a number dependant on the current weapon equipped, change later
-			}*/
-			
-			//Handle simple push back collision
-			if(playerX != 0) playerX -= shiftX;
-			if(playerY != 0) playerY -= shiftY;
-			if(playerX == 0) playerX -= shiftX;
-			if(playerY == 0) playerY -= shiftY;
-			
+				//Handle simple push back collision
+				if(playerX != 0) playerX -= shiftX;
+				if(playerY != 0) playerY -= shiftY;
+				if(playerX == 0) playerX -= shiftX;
+				if(playerY == 0) playerY -= shiftY;
+
 			}
-	}}
-	
+		}
+	}
+
 	/***********************************************************************
 	* @param AnimatedSprite
 	* @param Tile
@@ -551,10 +538,10 @@ public class Judgement extends Game {
 		double smallestOverlap = Double.MAX_VALUE; 
 		double shiftX = 0;
 		double shiftY = 0;
-		
+
 		if(spr.spriteType() == TYPE.BULLET) {
-			
-			System.out.println("bullet COllision");
+
+			//System.out.println("bullet COllision"); //for debugging
 			spr.setBounds(0, 0, 0);
 			spr.setSpriteSize(0);
 			((Mob) spr).setAlive(false);
@@ -562,28 +549,28 @@ public class Judgement extends Game {
 		}
 		else{
 
-		if(leftOverlap < smallestOverlap) { //Left
-			smallestOverlap = leftOverlap;
-			shiftX -= leftOverlap; 
-			shiftY = 0;
-		}
-		if(rightOverlap < smallestOverlap){ //right
-			smallestOverlap = rightOverlap;
-			shiftX = rightOverlap;
-			shiftY = 0;
-			
-		}
-		if(topOverlap < smallestOverlap){ //up
-			smallestOverlap = topOverlap;
-			shiftX = 0;
-			shiftY -= topOverlap;
-		}
-		if(botOverlap < smallestOverlap){ //down
-			smallestOverlap = botOverlap;
-			shiftX = 0;
-			shiftY = botOverlap;	
-		}		
-		
+			if(leftOverlap < smallestOverlap) { //Left
+				smallestOverlap = leftOverlap;
+				shiftX -= leftOverlap; 
+				shiftY = 0;
+			}
+			if(rightOverlap < smallestOverlap){ //right
+				smallestOverlap = rightOverlap;
+				shiftX = rightOverlap;
+				shiftY = 0;
+
+			}
+			if(topOverlap < smallestOverlap){ //up
+				smallestOverlap = topOverlap;
+				shiftX = 0;
+				shiftY -= topOverlap;
+			}
+			if(botOverlap < smallestOverlap){ //down
+				smallestOverlap = botOverlap;
+				shiftX = 0;
+				shiftY = botOverlap;	
+			}		
+
 		}
 		
 		//Deal with a tiles possible event property
@@ -600,16 +587,16 @@ public class Judgement extends Game {
 					sprites().add(titleArrow);
 					bulletsArr.removeAll(bulletsArr);
 					//Get the new map
-					
+
 					currentMapIndex=currentMapIndex+1;
 					currentMap = mapBase.getMap(currentMapIndex);				
-					
+
 					//Load in the new maps Tiles and Mobs
 					for(int i = 0; i < currentMap.getWidth() * currentMap.getHeight(); i++){
 						addTile(currentMap.accessTile(i));
-				//		addTile(currentOverlay.accessTile(i));
+						//addTile(currentOverlay.accessTile(i));
 						if(currentMap.accessTile(i).hasMob()) sprites().add(currentMap.accessTile(i).mob());
-				//		if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
+						//if(currentOverlay.accessTile(i).hasMob()) sprites().add(currentOverlay.accessTile(i).mob());
 					}
 					//Move the player to the new position
 					//playerX = tile.event().getNewX();
@@ -763,6 +750,7 @@ public class Judgement extends Game {
 						titleLocation = 0;
 						inputWait = 10;
 						keyEnter = false;
+						bulletsArr.removeAll(bulletsArr);
 						Audio.PlaySound(startGameSnd); //plays the start game sound
 					}
 					if(titleLocation == 1){
@@ -779,14 +767,10 @@ public class Judgement extends Game {
 				//Enter key(Make a choice)
 				if(keyEnter && !title.isGetName()) {
 					if(option == OPTION.NEWGAME) {
-						
-						
-						
+
 						state = STATE.GAME;
 						option = OPTION.NONE;
 						setGameState(STATE.GAME);
-					
-					
 					}
 				}//end enter key
 				
@@ -816,7 +800,7 @@ public class Judgement extends Game {
 					if(inLocation < 3) {
 						inY += 108;
 						inLocation++;
-						inputWait = 2;
+						inputWait = 5;
 						Audio.PlaySound(menuBlipSnd); //plays the blip sound when moving between options
 					}
 				}
@@ -828,7 +812,7 @@ public class Judgement extends Game {
 						inputWait = 5;
 					}
 					if(inLocation == 1){
-						option = OPTION.EQUIPMENT;
+						option = OPTION.HELP;
 						inputWait = 5;
 					}
 					if(inLocation == 2){
@@ -917,91 +901,91 @@ public class Judgement extends Game {
 	
 	void gameKeyDown(int keyCode) {
 		switch(keyCode) {
-	        case KeyEvent.VK_A:
-	        	keyLeft = true;
-	        	break;
-	        case KeyEvent.VK_D:
-	        	keyRight = true;
-	        	break;
-	        case KeyEvent.VK_W:
-	        	keyUp = true;
-	        	break;
-	        case KeyEvent.VK_S:
-	        	keyDown = true;
-	        	break;
-	        case KeyEvent.VK_ESCAPE: 
-	        	escapeDown=escapeDown+1;
-	        	inLocation = 0;
-				inY = 90;
-	        	if(escapeDown ==1 && state==STATE.GAME)
-	        	{
-	        	keyInventoryOpen = true;
-	        	escapeDown=escapeDown+1;
-	        	}
-	        	
-	        	
-	        	else if(escapeDown ==1 && state == STATE.INGAMEMENU)
-	        	{
-	        	keyInventoryClose = true;
-	        	escapeDown=escapeDown+1;
-	        	}
-	        	
-	        	else{
-	        		keyInventoryClose=false;
-	        		keyInventoryOpen=false;
-	        	}	        	
-	        	break;
-	        case KeyEvent.VK_F:
-	        	keyAction = true;
-	        	break;
-	        case KeyEvent.VK_ENTER:
-	        	keyEnter = true;
-	        	break;
-	        case KeyEvent.VK_BACK_SPACE:
-	        	keyBack = true;
-	        	break;
-	        case KeyEvent.VK_SPACE:
-	        	keySpace = true;
-	        	break;
-	        case KeyEvent.VK_9:
-	        	playerMob.healMob(1);
-	        	break;
-	        case KeyEvent.VK_6:
-	        	if(state == STATE.GAME)
-	        	playerMob.damageMob(1);
-	        	break;
-	        case KeyEvent.VK_B:
-	        	break;
-	        	
-	        case KeyEvent.VK_DOWN: {//MODIFICATION_START
-		    	if(attackWait <= 0 && state==STATE.GAME) {
-		    		attackWait = 5;
-		    		arrow = true;
-		    	}
-	            break;
-		    } case KeyEvent.VK_UP: {
-		    	System.out.println(currentMapIndex);
-		    	if(attackWait <= 0 && state==STATE.GAME) {
-		    		attackWait = 5;
-		    		arrow = true;
-		    	}
-	            break;
-		    } case KeyEvent.VK_RIGHT: {
-		    	if(attackWait <= 0 && state==STATE.GAME) {
-		    		attackWait = 5;
-		    		arrow = true;
-		    	}
-	            break;
-		    } case KeyEvent.VK_LEFT: {
-		    	if(attackWait <= 0  && state==STATE.GAME) {
-		    		attackWait = 5;
-		    		arrow = true;
-		    	}
-	            break;	 //MODIFICATION_END
-	        	
-	        	
-	        	
-        }
+		case KeyEvent.VK_A:
+			keyLeft = true;
+			break;
+		case KeyEvent.VK_D:
+			keyRight = true;
+			break;
+		case KeyEvent.VK_W:
+			keyUp = true;
+			break;
+		case KeyEvent.VK_S:
+			keyDown = true;
+			break;
+		case KeyEvent.VK_ESCAPE: 
+			escapeDown=escapeDown+1;
+			inLocation = 0;
+			inY = 90;
+			if(escapeDown ==1 && state==STATE.GAME)
+			{
+				keyInventoryOpen = true;
+				escapeDown=escapeDown+1;
+			}
+
+
+			else if(escapeDown ==1 && state == STATE.INGAMEMENU)
+			{
+				keyInventoryClose = true;
+				escapeDown=escapeDown+1;
+			}
+
+			else{
+				keyInventoryClose=false;
+				keyInventoryOpen=false;
+			}	        	
+			break;
+		case KeyEvent.VK_F:
+			keyAction = true;
+			break;
+		case KeyEvent.VK_ENTER:
+			keyEnter = true;
+			break;
+		case KeyEvent.VK_BACK_SPACE:
+			keyBack = true;
+			break;
+		case KeyEvent.VK_SPACE:
+			keySpace = true;
+			break;
+		case KeyEvent.VK_9:
+			playerMob.healMob(1);
+			break;
+		case KeyEvent.VK_6:
+			if(state == STATE.GAME)
+				playerMob.damageMob(1);
+			break;
+		case KeyEvent.VK_B:
+			break;
+
+		case KeyEvent.VK_DOWN: {//MODIFICATION_START
+			if(attackWait <= 0 && state==STATE.GAME) {
+				attackWait = 5;
+				arrow = true;
+			}
+		break;
+		} case KeyEvent.VK_UP: {
+			//System.out.println(currentMapIndex); //for debugging, prints the current map index
+			if(attackWait <= 0 && state==STATE.GAME) {
+				attackWait = 5;
+				arrow = true;
+			}
+			break;
+		} case KeyEvent.VK_RIGHT: {
+			if(attackWait <= 0 && state==STATE.GAME) {
+				attackWait = 5;
+				arrow = true;
+			}
+			break;
+		} case KeyEvent.VK_LEFT: {
+			if(attackWait <= 0  && state==STATE.GAME) {
+				attackWait = 5;
+				arrow = true;
+			}
+			break;	 //MODIFICATION_END
+
+
+
+		}
 		}
 	}
 
@@ -1088,10 +1072,22 @@ public class Judgement extends Game {
 	public void reset() {
 	
 		Audio.StartTitleMusic("2.au");  //restarts title music. Checks for mute within Audio.java
-		tiles().clear(); //Clears the current tiles
+		tiles().clear();
+		sprites().clear();
+		sprites().add(playerMob);
+		sprites().add(mobNPC);
+		mobNPC.setAlive(true);
+		sprites().add(bullet);
+		sprites().add(titleArrow);
 		mapBase = new MapDatabase(this, graphics(), scale/2); //Builds a new map database
 		currentMap = mapBase.getMap(0); //Sets the current map to 0  The first map
 
+		
+		
+		
+		
+		
+		
 		// Add the tiles from the map to be updated each system cycle
 		for (int i = 0; i < currentMap.getHeight() * currentMap.getHeight(); i++) {
 			addTile(currentMap.accessTile(i));
@@ -1101,8 +1097,7 @@ public class Judgement extends Game {
 		}
 			//Resets several Variables...
 		bulletSpawned = false;
-		bulletSpawnTime = 0;
-		System.out.println("Reset");
+		//System.out.println("Reset");
 		playerMob.setHealth(20);
 		playerMob.setAlive(true);
 		playerX = startPosX;
