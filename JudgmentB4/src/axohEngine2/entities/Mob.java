@@ -20,6 +20,7 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
+import axohEngine2.Judgement;
 import axohEngine2.project.TYPE;
 
 public class Mob extends AnimatedSprite{
@@ -56,6 +57,10 @@ public class Mob extends AnimatedSprite{
 	private boolean wasUp = false;
 	private boolean wasDown = false;
 
+	
+	private int timePassed; //added for the amount of time the NPC has been moving horizontally/vertically
+	private int maxTimePass; //added
+	
 	//moveDir - Direction the mob was moving
 	//direction - The direction the Mob is facing
 	//randomDir - The random choice of a direction used in random movements
@@ -70,6 +75,10 @@ public class Mob extends AnimatedSprite{
 	//Graphics and Window objects the mob needs for display
 	private Graphics2D g2d;
 	private JFrame frame;
+	public int bulletX;
+	public int bulletY;
+	private int bulletXDelta;
+	private int bulletYDelta;
 	
 	/************************************************************************
 	 * Constructor
@@ -95,6 +104,35 @@ public class Mob extends AnimatedSprite{
 		setSolid(true);
 		setAlive(true);
 		setSpriteType(ai);
+		
+		//only used for bullets
+		bulletXDelta =3;
+		bulletYDelta = 0;
+		
+		bulletX = Judgement.CENTERX - Judgement.playerX+60;
+		bulletY = Judgement.CENTERY - Judgement.playerY+60;
+	}
+	
+	public Mob(JFrame frame, Graphics2D g2d, SpriteSheet sheet, int spriteNumber, TYPE ai, String name, boolean hostility, int newBulletXDelta, int newBulletYDelta) {
+		super(frame, g2d, sheet, spriteNumber, name);
+		attacks = new LinkedList<Attack>();
+		this.frame = frame;
+		this.g2d = g2d;
+		this.ai = ai;
+		
+		hostile = hostility;
+		setName(name);
+		health = 0;
+		setSolid(true);
+		setAlive(true);
+		setSpriteType(ai);
+		
+		//only used for bullets
+		bulletXDelta =newBulletXDelta;
+		bulletYDelta = newBulletYDelta;
+		
+		bulletX = Judgement.CENTERX - Judgement.playerX+60;
+		bulletY = Judgement.CENTERY - Judgement.playerY+60;
 	}
 	
 	//Getters for name and ai type
@@ -107,6 +145,18 @@ public class Mob extends AnimatedSprite{
 	public void setName(String name) { super._name = name; }
 	public void setSpeed(int speed) { this.speed = speed; }
 	
+	public DIRECTION getDirection(){
+		return direction;
+	}
+	public void setDirection(DIRECTION newDir){
+		direction = newDir;
+	}
+	public int getMaxTimePass(){
+		return maxTimePass;
+	}
+	public void setMaxTimePass(int n){
+		maxTimePass = n;
+	}
 	/**************************************************
 	 * Set all of the movement related variables to whatever nothing is
 	 **************************************************/
@@ -141,16 +191,40 @@ public class Mob extends AnimatedSprite{
 		if(ai == TYPE.SEARCH) {
 			search();
 		}
-		//if(ai == TYPE.CHASE) {
-		//	chase();
-		//}
-		//if(ai == TYPE.BULLET) {
-		//	flyingBullet();
-		//}
+		if(ai == TYPE.BULLET){
+
+			bulletX=bulletX+bulletXDelta;
+			bulletY=bulletY+bulletYDelta;
+		}
 		
-		//if(hostile && health < 0) {
-		//	setAlive(false);
-		//}
+		if(ai == TYPE.ENEMY) {
+			if(direction == DIRECTION.RIGHT){
+				xx += speed;
+				timePassed++;
+			} else if(direction == DIRECTION.LEFT){
+				xx -= speed;
+				timePassed++;
+			} else if(direction == DIRECTION.UP){
+				yy -= speed;
+				timePassed++;
+			} else if(direction == DIRECTION.DOWN){
+				yy += speed;
+				timePassed++;
+			}
+
+			if(timePassed == maxTimePass){
+				timePassed = 0;
+				if(direction == DIRECTION.RIGHT){
+					direction = DIRECTION.LEFT;
+				} else if(direction == DIRECTION.LEFT){
+					direction = DIRECTION.RIGHT;
+				} else if(direction == DIRECTION.UP){
+					direction = DIRECTION.DOWN;
+				} else if(direction == DIRECTION.DOWN){
+					direction = DIRECTION.UP;
+				}
+			}
+		}
 	}
 	
 	/***************************************************************
@@ -230,25 +304,6 @@ public class Mob extends AnimatedSprite{
 			yy += speed;
 		}
 	}
-	
-	/***************************************************************
-	 * Method used to change a bullet's position.
-	 * 
-	 * @param xa - Int movement in pixels on the x axis
-	 * @param ya - Int movement in pixels on the y axis
-	 ****************************************************************/
-	public void moveBullet(int xa, int ya) { 
-		if(xa < 0) { //left
-			xx += xa; 
-		} else if(xa > 0) { //right
-			xx += xa; 
-		}
-		if(ya < 0) {  //up
-			yy += ya;
-		} else if(ya > 0) { //down
-			yy += ya;
-		}
-	}	
 	
 	/***************************************************************
 	 * Method used to change a mobs position by the xa and ya parameters.

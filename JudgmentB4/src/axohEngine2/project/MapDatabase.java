@@ -50,6 +50,8 @@ public class MapDatabase {
 	Tile h;
 	Tile hf;
 	Tile c;
+	Tile k;
+	Tile j;
 	
 	//Events
 	Event [] warp  = new Event[200];
@@ -65,7 +67,7 @@ public class MapDatabase {
 	
 	//Array of maps
 	public Map[] maps;
-	public Tile[][] mapTiles = new Tile[200][169];
+	public Tile[][] mapTiles = new Tile[200][676];
 	
 	
 	//Julian changes to allow reading from a file
@@ -100,11 +102,12 @@ public class MapDatabase {
 		mainCharacter = new SpriteSheet("/textures/characters/mainCharacter.png", 8, 8, 32, scale);
 		
 		//Set up tile blueprints and if they are animating
-		d = new Tile(frame, g2d, "door", environment32, 0);
+		j = new Tile(frame, g2d, "doorleft", misc, 24, true);
+		k = new Tile(frame, g2d, "doorRight", misc, 25, true);
 		f = new Tile(frame, g2d, "flower", misc, 11);
-		g = new Tile(frame, g2d, "grass", misc, 0);
+		g = new Tile(frame, g2d, "walkway", misc, 16);
 		b = new Tile(frame, g2d, "bricks", misc, 14, true);
-		r = new Tile(frame, g2d, "walkWay", misc, 10);
+		r = new Tile(frame, g2d, "checkerWalkway", misc, 10);
 		e = new Tile(frame, g2d, "empty", misc, 7);
 		ro = new Tile(frame, g2d, "rock", misc, 2);
 		h = new Tile(frame, g2d, "house", buildings, 0, true);
@@ -115,12 +118,12 @@ public class MapDatabase {
 		Random rn = new Random();
 		lastRandom = rn.nextInt(numMapFiles);
 		
-		for (int x=1; x<=10; x++){
+		for (int x=0; x<=4; x++){
 			
-			if (x==10)
+			if (x==4)
 			{
 				mapFromFile("mapEnd.txt", mapTiles[x]);
-				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map5");
+				maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
 			}
 			
 			else{
@@ -128,63 +131,27 @@ public class MapDatabase {
 				while(curRandom == lastRandom) //Checks to see if the new random is the same as the last random
 					curRandom = rn.nextInt(numMapFiles);  //if it is, it gets a new random
 				
-				lastRandom=curRandom;
-		
-				mapFromFile("map"+(curRandom)+".txt", mapTiles[x]);
-				maps[x] =  new Map(frame, g2d, mapTiles[x], 13, 13, "map");
+				if(x==0){
+					mapFromFile("mapStart.txt", mapTiles[x]);
+					maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
+				}
+				else
+				{
+					lastRandom=curRandom;
+					mapFromFile("map"+(curRandom)+".txt", mapTiles[x]);
+					maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
+				}
 				warp[x] = new Event("ToNext", TYPE.WARP);
-				warp[x] .setWarp(16, -300);
-				maps[x].accessTile(8).addEvent(warp[x]);
+				warp[x] .setWarp(-300);
+				maps[x].accessTile(12).addEvent(warp[x]);
+				maps[x].accessTile(13).addEvent(warp[x]);
 			}
 		}
 		
-	//Starting zone initialization	
-		
-		mapFromFile("mapStart.txt", mapTiles[0]);
-		maps[0] =  new Map(frame, g2d, mapTiles[0], 13, 13, "map5");
-		warp[0] = new Event("ToNext", TYPE.WARP);
-		warp[0] .setWarp(16, -300);
-		maps[0].accessTile(8).addEvent(warp[0]);
-		
-
-		
-		
-		//Put together all items (Dont forget to add these to the count and setup methods in inGameMenu.java)
-	//	potion = new Item(frame, g2d, extras2, 2, "Potion", false);
-	//	potion.setHealItem(25, false, "");
-	//	mpotion = new Item(frame, g2d, extras2, 2, "Mega Potion", false);
-	//	potion.setHealItem(50, false, "");
-		
-		
-		//Item events
-	//	getPotion = new Event("getPotion", TYPE.ITEM);
-	//	getPotion.setItem(potion);
-	//	getMpotion = new Event("getMpotion", TYPE.ITEM);
-	//	getMpotion.setItem(mpotion);
-		
-		//Add the events to their specific tiles and maps
-		//houses.accessTile(5).addEvent(warp1);
-		//cityO.accessTile(92).addEvent(getPotion);
-		//cityO.accessTile(242).addEvent(getPotion);
-		//cityO.accessTile(328).addEvent(getPotion);
-		//cityO.accessTile(327).addEvent(getMpotion);
-		//cityO.accessTile(326).addEvent(getMpotion);
-	    //cityO.accessTile(325).addEvent(getMpotion);
-		//cityO.accessTile(93).addEvent(getMpotion);
-		//cityO.accessTile(94).addEvent(getMpotion);
-		//cityO.accessTile(95).addEvent(getMpotion);
-		//cityO.accessTile(96).addEvent(getMpotion);
-		
 		//Set up Monsters and NPCs
 		//npc = new Mob(frame, g2d, mainCharacter, 40, TYPE.ENEMY, "npc", false);
-		//npc.setMultBounds(6, 50, 92, 37, 88, 62, 92, 62, 96);
-		//npc.setMoveAnim(32, 48, 40, 56, 3, 8);
-		//npc.setHealth(60);
-		
-		//Add the mobs to their tile home
 		//maps[0].accessTile(16).addMob(npc);
 	}
-	
 	
 	//New method
 	//Points to a filename (by it's name in the form of a string) 
@@ -197,8 +164,9 @@ public class MapDatabase {
 			File currentMap = new File ("maps/"+fileName); //Uses the string to point to the actual file (/maps is where the files are held)
 			fileInput = new Scanner(currentMap); //creates a scanner which will be used to iterate through the file
 
-					for (cur = 0; cur < 169; cur++) { //currently, all our maps are a fixed size, 13 x 13.. 169 tiles total
-						nextTile = fileInput.next(); //grabs the next character
+					for (cur = 0; cur < 676; cur++) { //currently, all our maps are a fixed size, 13 x 13.. 169 tiles total
+						if(fileInput.hasNext()){
+								nextTile = fileInput.next(); //grabs the next character
 						
 						//Uses a switch statement to decide what tile type will be placed 
 						 switch (nextTile) {
@@ -214,8 +182,18 @@ public class MapDatabase {
 				         case "g":
 				        	 map[cur] = g ;
 				             break;
+				         case "j":
+				        	 map[cur] = j ;
+				             break;
+				         case "k":
+				        	 map[cur] = k ;
+				             break;
 				         //other tiles can be added to this statement as neccesary
-				 }
+
+				            default:
+				            	break;
+						 }
+					}
 			}
 
 			fileInput.close();				//Closes the file.

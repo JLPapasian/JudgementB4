@@ -15,6 +15,7 @@ package axohEngine2.project;
 public enum OPTION {
 	ITEMS,
 	EQUIPMENT,
+	HELP,
 	MAGIC,
 	STATUS,
 	SAVE,
