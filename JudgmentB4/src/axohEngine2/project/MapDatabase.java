@@ -50,6 +50,8 @@ public class MapDatabase {
 	Tile h;
 	Tile hf;
 	Tile c;
+	Tile k;
+	Tile j;
 	
 	//Events
 	Event [] warp  = new Event[200];
@@ -93,18 +95,19 @@ public class MapDatabase {
 		
 		
 		//Set up spriteSheets
-		misc = new SpriteSheet("/textures/environments/environments1.png", 16, 16, 16, scale);
+		misc = new SpriteSheet("/textures/environments/environments.png", 16, 16, 16, scale);
 		buildings = new SpriteSheet("/textures/environments/4x4buildings.png", 4, 4, 64, scale);
 		environment32 = new SpriteSheet("/textures/environments/32SizeEnvironment.png", 8, 8, 32,scale);
 		extras2 = new SpriteSheet("/textures/extras/extras2.png", 16, 16, 16, scale);
 		mainCharacter = new SpriteSheet("/textures/characters/mainCharacter.png", 8, 8, 32, scale);
 		
 		//Set up tile blueprints and if they are animating
-		d = new Tile(frame, g2d, "door", environment32, 0);
+		j = new Tile(frame, g2d, "doorleft", misc, 24, true);
+		k = new Tile(frame, g2d, "doorRight", misc, 25, true);
 		f = new Tile(frame, g2d, "flower", misc, 11);
-		g = new Tile(frame, g2d, "grass", misc, 0);
+		g = new Tile(frame, g2d, "walkway", misc, 16);
 		b = new Tile(frame, g2d, "bricks", misc, 14, true);
-		r = new Tile(frame, g2d, "walkWay", misc, 10);
+		r = new Tile(frame, g2d, "checkerWalkway", misc, 10);
 		e = new Tile(frame, g2d, "empty", misc, 7);
 		ro = new Tile(frame, g2d, "rock", misc, 2);
 		h = new Tile(frame, g2d, "house", buildings, 0, true);
@@ -115,9 +118,9 @@ public class MapDatabase {
 		Random rn = new Random();
 		lastRandom = rn.nextInt(numMapFiles);
 		
-		for (int x=0; x<=10; x++){
+		for (int x=0; x<=4; x++){
 			
-			if (x==10)
+			if (x==4)
 			{
 				mapFromFile("mapEnd.txt", mapTiles[x]);
 				maps[x] =  new Map(frame, g2d, mapTiles[x], 26, 26, "map");
@@ -178,6 +181,12 @@ public class MapDatabase {
 				             break;
 				         case "g":
 				        	 map[cur] = g ;
+				             break;
+				         case "j":
+				        	 map[cur] = j ;
+				             break;
+				         case "k":
+				        	 map[cur] = k ;
 				             break;
 				         //other tiles can be added to this statement as neccesary
 

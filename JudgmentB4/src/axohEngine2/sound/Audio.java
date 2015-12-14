@@ -12,7 +12,7 @@ public class Audio {
 	private static boolean muted;
 
 	public static void PlaySound(String file) {
-		if (!muted) {
+		if (!muted) { //If the game is not muted...
 			try {
 				// open the sound file as a Java input stream
 				String gongFile = "audioclips/" + file;
@@ -22,7 +22,7 @@ public class Audio {
 				stream = new AudioStream(in);
 				AudioPlayer.player.start(stream);
 			}
-			catch (IOException e) {
+			catch (IOException e) {  //Must use the try catch block incase the file is not found
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}			    

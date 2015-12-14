@@ -235,11 +235,11 @@ public class InGameMenu {
 			g2d.setColor(Color.BLACK);
 			g2d.drawString("Help:", 900, 200);
 			g2d.setFont(new Font("Georgia", Font.PLAIN, 45));
-			g2d.drawString("Controls: AWSD for movement", 590,375);
+			g2d.drawString("Controls: WSAD for movement", 590,375);
 			g2d.setFont(new Font("Georgia", Font.PLAIN, 45));
 			g2d.drawString("Use arrow keys to fire bullets", 590, 475);
 			g2d.setFont(new Font("Georgia", Font.PLAIN, 45));
-			g2d.drawString("Main objective: defeat the enemys and survive.", 590, 575);
+			g2d.drawString("Main objective-Defeat the enemies and survive", 590, 575);
 
 
 		}

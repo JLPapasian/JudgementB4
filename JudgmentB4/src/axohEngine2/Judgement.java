@@ -1,7 +1,14 @@
 /****************************************************************************************************
  * @author Travis R. Dewitt
- * @version 0.53
- * Date: June 14, 2015
+ * 
+ * Modifications by-
+ * Julian Papasian
+ * Ashiss Paul
+ * Vincent Destefano
+ * Mike Ruane
+ * 
+ * @version 0.54
+ * Date: Dec, 1, 2015
  * 
  * 
  * Title: Judgement(The Game)
@@ -221,7 +228,8 @@ public class Judgement extends Game {
 		mapY = 32;
 		scale = 4;
 		playerSpeed = 3;
-		
+		System.setProperty("sun.java2d.noddraw", Boolean.TRUE.toString());
+
 		
 			try {
 				Audio.loadMuted();
@@ -229,7 +237,6 @@ public class Judgement extends Game {
 				e.printStackTrace();
 			}
 		
-		//Audio.StartTitleMusic("2.au");
 		
 
 		
@@ -281,19 +288,9 @@ public class Judgement extends Game {
 					
 		//Projectile
 		bullet = new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "aBullet", false);
-		sprites().add(bullet);
+		//sprites().add(bullet);
 		
-		//testing
-		/*
-		test1 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing1", false);
-		test2 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing2", false);
-		test3 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing3", false);
-		test4 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing4", false);
-		test5 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing5", false);
-		test6 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing6", false);
-		test7 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing7", false);
-		test8 = new Mob(this, graphics(), enemies, 10, TYPE.ENEMY, "testing8", false);
-		*/
+		//testing enemies
 		
 		test1 = new Mob(this, graphics(),  enemies, 10, TYPE.ENEMY, "testing1", false);
 		test2 = new Mob(this, graphics(),  enemies, 10,  TYPE.ENEMY, "testing2", false);
@@ -434,7 +431,7 @@ public class Judgement extends Game {
 				eighthLocX = 590;
 				eighthLocY = 150;
 			}
-			if(mapsVisited == 1 && testNPCSpawnTime == 1){
+			if(currentMapIndex == 4 && testNPCSpawnTime == 1){
 				testNPCSpawnTime++;
 				sprites().add(test6);
 				sprites().add(test7);
@@ -450,28 +447,32 @@ public class Judgement extends Game {
 					test4.renderMob(fourthLocX, fourthLocY);
 				if(test5.alive() && mapsVisited == 0)
 					test5.renderMob(fifthLocX, fifthLocY);
-				if(test6.alive() && mapsVisited == 1) {
+				if(test6.alive() && mapsVisited == 4) {
 					test6.renderMob(sixthLocX, sixthLocY);
 					test6.chase(CENTERX - playerX + 50, CENTERY - playerY + 75);	
-				} if(test7.alive() && mapsVisited == 1) {
+				} if(test7.alive() && mapsVisited == 4) {
 					test7.renderMob(seventhLocX, seventhLocY);
 					test7.chase(CENTERX - playerX + 50, CENTERY - playerY + 75);		
-			    } if(test8.alive() && mapsVisited == 1) {
+			    } if(test8.alive() && mapsVisited == 4) {
 					test8.renderMob(eighthLocX, eighthLocY);
 					test8.chase(CENTERX - playerX + 50, CENTERY - playerY + 75);	
 			    }
 			
 			
-			bulletsArr.stream().forEach(Mob -> Mob.renderMob(Mob.bulletX,Mob.bulletY));
-			bulletsArr.stream().forEach(Mob -> Mob.updateMob());
+			bulletsArr.stream().forEach(Mob -> Mob.renderMob(Mob.bulletX,Mob.bulletY));  //render each bullet
+			bulletsArr.stream().forEach(Mob -> Mob.updateMob());						 //update each bullets location
 			
-			 for(int i =0; i<bulletsArr.size()-1; i++){
-			       if(bulletsArr.get(i).alive()==false){
-			          bulletsArr.remove(i);
-			          //System.out.println("remove");
+			 for(int i =0; i<bulletsArr.size()-1; i++){ //iterates through each bullet
+			       if(bulletsArr.get(i).alive()==false){ //If the bullet is 'dead'
+			          bulletsArr.remove(i);				//removes the bullet from the array
+			          //System.out.println("removed");  //debugging
 			       }
 			 }
-			if(bulletsArr.size()>300)
+			 
+			 
+			 //Should never actually be reached, unless several errors occur while removing the bullets
+			 //Or if the code is modified to allow for a much faster fire rate
+			if(bulletsArr.size()>50) 
 				bulletsArr.removeAll(bulletsArr);
 			
 			//Drawing the health bar
@@ -570,22 +571,20 @@ public class Judgement extends Game {
 		}
 		
 		
-		if(spr1.spriteType() == TYPE.BULLET && spr2.spriteType() == TYPE.ENEMY) {
-			spr1.setBounds(0, 0, 0);
+		if(spr1.spriteType() == TYPE.BULLET && spr2.spriteType() == TYPE.ENEMY) { //If the colliding sprites are a bullet and an enemy...
+			spr1.setBounds(0, 0, 0);  //deletes the bullet's collision bounds (to ensure double collisions aren't made) 
 			spr1.setSpriteSize(0);
 			((Mob) spr1).setAlive(false); //bullet is no longer arrive -> disappears
-			Audio.PlaySound(bulletColSnd);
-			((Mob) spr2).damageMob(1);
-			if(((Mob) spr2).getHealth() < 1){ 
-				((Mob) spr2).setAlive(false);
-				((Mob) spr2).setHealth(5);
-				killCount += 1;
+			Audio.PlaySound(bulletColSnd); //play sound
+			((Mob) spr2).damageMob(1);    //damages the enemy
+			if(((Mob) spr2).getHealth() < 1){   //if the enemy has 0 or less health
+				((Mob) spr2).setAlive(false);	//set the enemy to 'dead'
+				killCount += 1;					//raise the kill count (tracked for 'opening' the door)
 			}
-			
 		}
 
 		//Handling very specific collisions
-		if(spr1.spriteType() == TYPE.PLAYER && state == STATE.GAME){
+		if(spr1.spriteType() == TYPE.PLAYER && state == STATE.GAME && spr2.alive()==true){
 			
 			if(spr2.spriteType()==TYPE.ENEMY){
 				((Mob) spr2).stop();
@@ -742,7 +741,7 @@ public class Judgement extends Game {
 		if(xa < 0) {
 		 playerX += xa; //right -#
 		}
-		if(ya > 0) {
+		if(ya > 0 && playerY < 500) {
 			playerY += ya; //up +#
 		}
 		if(ya < 0  && playerY >-300) {
@@ -910,7 +909,7 @@ public class Judgement extends Game {
 						inputWait = 5;
 					}
 					if(inLocation == 1){
-						option = OPTION.EQUIPMENT;
+						option = OPTION.HELP;
 						inputWait = 5;
 					}
 					if(inLocation == 2){
@@ -1080,10 +1079,8 @@ public class Judgement extends Game {
 		    		arrow = true;
 		    	}
 	            break;	 //MODIFICATION_END
-	        	
-	        	
-	        	
-        }
+        	
+		    }
 		}
 	}
 
@@ -1108,12 +1105,14 @@ public class Judgement extends Game {
         case KeyEvent.VK_S:
         	keyDown = false;
         	break;
-        case KeyEvent.VK_LEFT: {	//MODIFICATION_START
-        	if(arrow == true) {
-        		arrow = false;
-				bulletSpawned = true;
-				Audio.PlaySound(shootSnd);
-				bulletsArr.add(new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "asBullet", false,-5,0));
+        case KeyEvent.VK_LEFT: {
+        	if(arrow == true) { //If the key is pressed
+        		arrow = false;  //Arrow is false , prevents rapid fire with one key press
+				bulletSpawned = true; 
+				Audio.PlaySound(shootSnd);  //plays the sound effect
+				
+				//Creates a new bullet mob and adds it to the bullets array, then into the sprites array
+				bulletsArr.add(new Mob(this, graphics(), bullets, 0, TYPE.BULLET, "asBullet", false,-5,0)); 
 				sprites().add(bulletsArr.get(bulletsArr.size()-1));
         	}
             break;

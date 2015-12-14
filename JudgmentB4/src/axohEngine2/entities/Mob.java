@@ -192,10 +192,11 @@ public class Mob extends AnimatedSprite{
 			search();
 		}
 		if(ai == TYPE.BULLET){
-			
+
 			bulletX=bulletX+bulletXDelta;
 			bulletY=bulletY+bulletYDelta;
 		}
+		
 		if(ai == TYPE.ENEMY) {
 			if(direction == DIRECTION.RIGHT){
 				xx += speed;
@@ -210,7 +211,7 @@ public class Mob extends AnimatedSprite{
 				yy += speed;
 				timePassed++;
 			}
-			
+
 			if(timePassed == maxTimePass){
 				timePassed = 0;
 				if(direction == DIRECTION.RIGHT){
@@ -221,7 +222,7 @@ public class Mob extends AnimatedSprite{
 					direction = DIRECTION.DOWN;
 				} else if(direction == DIRECTION.DOWN){
 					direction = DIRECTION.UP;
-			}
+				}
 			}
 		}
 	}

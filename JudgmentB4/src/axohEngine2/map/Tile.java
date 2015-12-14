@@ -127,7 +127,6 @@ public class Tile extends AnimatedSprite {
 		hasEvent = tile.hasEvent();
 		hasProperty = tile.hasProperty();
 		event = tile.event();
-		
 		setSolid(_solid);
 		setSprite(tile.getSheet(), tile.getSpriteNumber());
 	}
